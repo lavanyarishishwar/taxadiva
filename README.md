@@ -70,7 +70,7 @@ taxadiva.pl [-s <file with set of forward and reverse files>]
 ```
 
 Example usage: 
-`taxadiva.pl -d db.fasta -t tax.db.tsv -j 18 -s list.txt -o output1 -m "-v 50 -m 450 -n 350 -p 1.0 -j 4"`
+`taxadiva.pl -d fDb.fasta -t fTax.db.tsv -j 18 -s list.txt -o output1 -m "-v 50 -m 450 -n 350 -p 1.0 -j 4"`
 
 The script can work on a single set of files (using the -1 and -2 option) or a set of files provided as a list as shown below:
 ```
@@ -87,7 +87,7 @@ The columns needs to be **tab** separated.
 ## Parallelization
 The script takes advantage of the embarrasingly parallel nature of the problem.  Basic parallelization is performed in the script using Perl threads (and threading whenever available inside dependencies).
 
-By default, the script assumes that it can run 10 threads which may not be possible on many systems.  This can be changed using the -t command or from the beginning of the script where the variable is defined `my $threads = 10;` (in case the user want to permanently change the default for their machine).
+By default, the script assumes that it can run 10 threads which may not be possible on many systems.  This can be changed using the -j command or from the beginning of the script where the variable is defined `my $threads = 10;` (in case the user want to permanently change the default for their machine).
 
 
 ## Known Issues
