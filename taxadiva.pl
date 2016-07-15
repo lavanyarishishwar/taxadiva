@@ -119,14 +119,14 @@ if( ! -e "$db.nhr" || ! -e "$db.nin" || ! -e "$db.nsq" ){
 	`makeblastdb -in $db -out $db -dbtype nucl`;
 }
 
-if(length($o) == 0 || $o =~ m{[\\:*?"<>|]}){
+if(length($outFile) == 0 || $outFile =~ m{[\\:*?"<>|]}){
 	print STDERR "\nERROR (Line ".__LINE__."): Invalid output prefix.  Please provide a prefix with acceptable characters (alphanumeric, _, .)\n";
 	print STDERR "$usage\n";
 	exit;
 }
 
-if($o =~ m/\//){
-	my @parts = split(/\//, $o);
+if($outFile =~ m/\//){
+	my @parts = split(/\//, $outFile);
 	pop(@parts);
 	my $prefix = join("/", @parts);
 	`mkdir -p $prefix` if(! -e $prefix);
