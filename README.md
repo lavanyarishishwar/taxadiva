@@ -17,7 +17,8 @@ Citations: Gaby JC, et al.  A pipeline for analysis of nifH amplicons.  Manuscri
 The script is written specifically for Linux operating system and has been tested on Ubuntu 14.04 and RedHat systems.  Certain components of the script may throw error on other *nix systems.  The script utilizes basic Linux commands and thus may work on Cygwin but not on MSDOS.
 
 - Perl
-- nifH sequence database (http://www.css.cornell.edu/faculty/buckley/nifh.htm; Gaby JC, Buckley DH. 2013. A comprehensive aligned nifH gene database: a multipurpose tool for studies of nitrogen-fixing bacteria. Database. doi: 10.1093/database/bau001)
+- nifH sequence database (http://www.css.cornell.edu/faculty/buckley/nifh.htm
+Gaby JC, Buckley DH. 2013. A comprehensive aligned nifH gene database: a multipurpose tool for studies of nitrogen-fixing bacteria. Database. doi: 10.1093/database/bau001)
 - PRINSEQ: http://prinseq.sourceforge.net/
 - Pear: http://sco.h-its.org/exelixis/web/software/pear/  
 Zhang J, Kobert K, Flouri T, Stamatakis A. 2014. PEAR: a fast and accurate Illumina Paired-End reAd mergeR. Bioinformatics 30:614–620
