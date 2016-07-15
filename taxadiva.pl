@@ -2,8 +2,8 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  : 7th July 2016
-# Version        : 0.9
+# Last Modified  : 15th July 2016
+# Version        : 0.10
 #
 #############################################################
 use strict;
@@ -25,6 +25,7 @@ my $baseUsage = "           [-o <STRING. output prefix to store results. Default
            [-g <INT. Depth cutoff for considering file. Default: 5000>]
            [--pear <STRING. PEAR paramaters in double quotes.  Default: \"-v 50 -m 450 -n 350 -p 1.0 -j <threads>\">]
            [--med <STRING. Oligotyping paramaters in double quotes.  Default: \"\">]
+           [--med-metadata <STRING. MED metadata file to be used for the decompose command.  Specified by the -E option in the decompose command.  Default: decompose_map3.tab.>]
            [-u <STRING. USEARCH program path. Default: usearch>]
            [-h <FLAG. Prints this help>]";
 my $usage = "\n=====================================\n$programHead\n=====================================\n$0  [-1 <STRING. forward read file>] [-2 <STRING. reverse read file>]\n$baseUsage\n\n$0  [-s <STRING. file with set of forward and reverse files>]\n$baseUsage \n=====================================\nExample usage: $0 -d db.fasta -t tax.db.tsv -j 18 -s list.txt -o output1 -m \"-v 50 -m 450 -n 350 -p 1.0 -j 4\"\n";
@@ -49,6 +50,7 @@ my $pearParameters = "-v 50 -m 450 -n 350 -p 1.0 -j $threads";
 my $medParameters = "";
 my $goodDepth = 5000;
 my $oligotyping = 0;
+my $medMetadataFile = "decompose_map3.tab";
 my %tax; my %tax2Species; my %family; my %genus; my %class; my %uniqueClass; my %taxid; my %spfFormat;
 share(%tax); share(%tax2Species); share(%family); share(%genus); share(%class); share(%uniqueClass); share(%taxid);
 #############################################################
@@ -71,10 +73,12 @@ my $args  = GetOptions ("1=s"     => \$r1,
                         "y+"      => \$oligotyping,
                         "o=s"     => \$outFile,
                         "pear=s"  => \$pearParameters,
-                        "med=s"   => \$medParameters);
+                        "med=s"   => \$medParameters,
+                        "med-metadata=s"   => \$medMetadataFile);
                         
 #############################################################
-                        
+
+print STDERR "Checking for the provided arguments...";
 	
 if($help == 1){
 	print STDERR $programHead;
@@ -115,8 +119,26 @@ if( ! -e "$db.nhr" || ! -e "$db.nin" || ! -e "$db.nsq" ){
 	`makeblastdb -in $db -out $db -dbtype nucl`;
 }
 
+if(length($o) == 0 || $o =~ m{[\\:*?"<>|]}){
+	print STDERR "\nERROR (Line ".__LINE__."): Invalid output prefix.  Please provide a prefix with acceptable characters (alphanumeric, _, .)\n";
+	print STDERR "$usage\n";
+	exit;
+}
+
+if($o =~ m/\//){
+	my @parts = split(/\//, $o);
+	pop(@parts);
+	my $prefix = join("/", @parts);
+	`mkdir -p $prefix` if(! -e $prefix);
+}
+
+print STDERR "everything looks fine.\n";
+
 #############################################################
 #	Prerequisite check
+
+print STDERR "Checking for dependencies...";
+
 my $programPath;
 # PEAR
 $programPath = `which pear`;
@@ -171,7 +193,7 @@ if($oligotyping == 1){
 	$programPath = "";
 }
 
-
+print STDERR "found everything I need.\n";
 
 #############################################################
 #	Function definitions
@@ -668,6 +690,9 @@ sub taxAssignBatch{
 	}
 	print STDERR "\n\tCreated Krona files (Total files = ".(scalar keys %clusterCount).")";
 	
+	
+	# This is where the BIOM file is generated for input for QIIME
+	
 	my @biomBins = keys %biomBins;
 	my @otus = keys %biom;
 	
@@ -684,12 +709,21 @@ sub taxAssignBatch{
 			$biom{$otus[$i]}{$bin} //= 0;
 			print BIOM "\t$biom{$otus[$i]}{$bin}";
 		}
-		print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
+		#The following code would've printed the taxonomy ID
+		#print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
+		#The new one will print the taxonomy hierarchy
+		if(defined $spfFormat{$assignments{$otus[$i]}{"accn"}}){
+			my $name = $spfFormat{$assignments{$otus[$i]}{"accn"}};
+			$name =~ s/\t/;/g;
+			print BIOM "\t$name";
+		}
 		print BIOM "\n";
 	}
 	close BIOM;
 	print STDERR "\n\tCreated $out.otu_table.txt";
 	
+	
+	# This is where the STAMPS spf file is generated
 	
 	open SPF, ">$out.spf" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.spf: $!\n";
 	print SPF "Domain\tPhylum\tClass\tOrder\tFamily\tGenus\tSpecies";
@@ -726,8 +760,13 @@ sub taxAssignBatch{
 ###########################################
 sub oligotype{
 	my ($prefix) = @_;
+	
+	# this is the input file for the oligotyping analysis
 	my $in = $prefix.".reads.temp";
 	print STDERR "[$prefix][Step 7]\tRunning MED analysis...";
+	
+	# Create a subdirectory MED inside the output prefix for storing the output
+	`mkdir -p $prefix/MED`;
 	
 	if(length($medParameters) != 0){
 		my @parts = split(/\s+/, $medParameters);
@@ -740,13 +779,15 @@ sub oligotype{
 	}
 	
 	`o-pad-with-gaps $in -o $in.withPadgaps`;
-	`decompose -o $prefix $medParameters $in.withPadgaps -E decompose_map3.tab`; #JCGaby removed --gen-html on July 7 2016
+	`decompose -o $prefix/MED $medParameters $in.withPadgaps -E $medMetadataFile`; #JCGaby removed --gen-html on July 7 2016
 	close OUT;
 	
 	#my $key = "";
 	
+	print STDERR "\n\t\tFinish running decompose, initiating BLAST...";
+	
 	# BLAST the representative sequences against the database to get the name
-	my $results = `blastn -query $prefix/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps_per_subject 1 -num_threads $threads | tee $prefix/$in.oligoBlast.tsv`;
+	my $results = `blastn -query $prefix/MED/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps_per_subject 1 -num_threads $threads | tee $prefix/MED/oligoBlast.tsv`;
 	my @results = split(/\n/, $results);
 	my %mapping;
 	foreach my $this (@results){
@@ -759,28 +800,31 @@ sub oligotype{
 	}
 	print STDERR "done\n";
 	
-	open FILE, "<$prefix/NETWORK.gexf" or die "Cannot open input file $prefix/NETWORK.gexf: $!\n";
+	print STDERR "\n\t\tFinished BLAST, starting output file processing...";
+	
+	open FILE, "<$prefix/MED/NETWORK.gexf" or die "Cannot open input file $prefix/MED/NETWORK.gexf: $!\n";
 	my @file = <FILE>;
 	my $file = join("\n", @file);
 	foreach my $key (keys %mapping){
 		$file =~ s/$key/$mapping{$key}/g;
 	}
 	close FILE;
-	open OUT, ">$prefix/labelled.NETWORK.gexf" or die "Cannot create output file $prefix/labelled.NETWORK.gexf: $!\n";
+	open OUT, ">$prefix/MED/labelled.NETWORK.gexf" or die "Cannot create output file $prefix/MED/labelled.NETWORK.gexf: $!\n";
 	print OUT $file;
 	close OUT;
 	@file = ();
 	
-	open FILE, "<$prefix/TOPOLOGY.gexf" or die "Cannot open input file $prefix/NETWORK.gexf: $!\n";
+	open FILE, "<$prefix/MED/TOPOLOGY.gexf" or die "Cannot open input file $prefix/MED/TOPOLOGY.gexf: $!\n";
 	@file = <FILE>;
 	$file = join("\n", @file);
 	foreach my $key (keys %mapping){
 		$file =~ s/$key/$mapping{$key}/g;
 	}
 	close FILE;
-	open OUT, ">$prefix/labelled.TOPOLOGY.gexf" or die "Cannot create output file $prefix/labelled.NETWORK.gexf: $!\n";
+	open OUT, ">$prefix/MED/labelled.TOPOLOGY.gexf" or die "Cannot create output file $prefix/MED/labelled.NETWORK.gexf: $!\n";
 	print OUT $file;
 	close OUT;
+	print STDERR "[$prefix][Step 7]\tCompleted\n";
 }
 
 # Function: singleSampleAnalysis ##########
