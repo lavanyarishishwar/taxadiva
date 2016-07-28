@@ -13,7 +13,6 @@ DQ413021	cluster I	398	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;R
 RHMNIFH1A	cluster I	385	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium leguminosarum;Rhizobium leguminosarum bv. phaseoli
 AY688617	cluster I	69974	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Phyllobacteriaceae;Mesorhizobium;Mesorhizobium plurifarium;.
 EF191410	cluster I	420324	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Methylobacteriaceae;Microvirga;Microvirga lupini;.
-EF191409	cluster I	420320	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;unclassified Rhizobiales;unclassified Rhizobiales (miscellaneous);Rhizobiales bacterium ltg2;.
 EU177597	cluster I	384	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium leguminosarum;.
 EU707158	cluster I	384	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium leguminosarum;.
 EU177595	cluster I	384	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium leguminosarum;.
@@ -242,10 +241,6 @@ ADAF001432	cluster I	33996	Bacteria;Proteobacteria;Alphaproteobacteria;Rhodospir
 AB331241	cluster I	389265	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium sp. 525W;.
 AB233495	cluster I	344459	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Amorphomonas;Amorphomonas oryzae;.
 AY428644	cluster I	240521	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium daejeonense;.
-AF046836	cluster I	75764	Bacteria;Proteobacteria;Alphaproteobacteria;Rhodobacterales;Rhodobacteraceae;unclassified Rhodobacteraceae;marine proteobacterium 'Bird Shoal 8-1';.
-AF046840	cluster I	75765	Bacteria;Proteobacteria;Alphaproteobacteria;Rhodobacterales;Rhodobacteraceae;unclassified Rhodobacteraceae;marine proteobacterium 'Sippewissett 2-21';.
-AF046830	cluster I	75763	Bacteria;Proteobacteria;Alphaproteobacteria;Rhodobacterales;Rhodobacteraceae;unclassified Rhodobacteraceae;marine proteobacterium 'Bird Shoal 1-2';.
-AF046848	cluster I	75766	Bacteria;Proteobacteria;Alphaproteobacteria;unclassified Alphaproteobacteria;unclassified Alphaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay lg wh';.;.
 AB182912	cluster I	261934	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Methylocystaceae;Pleomorphomonas;Pleomorphomonas oryzae;.
 AB182913	cluster I	261934	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Methylocystaceae;Pleomorphomonas;Pleomorphomonas oryzae;.
 AB182910	cluster I	261934	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Methylocystaceae;Pleomorphomonas;Pleomorphomonas oryzae;.
@@ -312,55 +307,21 @@ DQ411941	cluster I	375549	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiale
 EU291983	cluster I	375549	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Ensifer;Ensifer mexicanus;.
 DQ411938	cluster I	375549	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Ensifer;Ensifer mexicanus;.
 U97122	cluster I	34027	Bacteria;Proteobacteria;Betaproteobacteria;Rhodocyclales;Rhodocyclaceae;Azoarcus;Azoarcus tolulyticus;.
-AF046841	cluster I	75775	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Sippewissett 24'
 AF111110	cluster I	685	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio diazotrophicus;.
 AY221828	cluster I	685	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio diazotrophicus;.
-AF046842	cluster I	75776	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Sippewissett 2'
 VDU23650	cluster I	685	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio diazotrophicus;.
-AF046837	cluster I	75773	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal sa3'
 EU155079	cluster I	474394	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio mangrovi;.
-UNU43442	cluster I	73554	Bacteria;Proteobacteria;unclassified Proteobacteria;unclassified Proteobacteria (miscellaneous);marine proteobacterium WC1-2(LW);.;.;.
 EU072030	cluster I	435912	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio porteresiae;.
 EF554362	cluster I	1123496	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio porteresiae;Vibrio porteresiae DSM 19223
 AF082989	cluster I	1219067	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio natriegens;Vibrio natriegens NBRC 15636 = ATCC 14048 = DSM 759
 EU620234	cluster I	490190	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio sp. MSSRF39;.
-AF046828	cluster I	75767	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal sa2'
-AF046829	cluster I	75768	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal sw4'
-AF046827	cluster I	75762	Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;unclassified Enterobacteriaceae;unclassified Enterobacteriaceae (miscellaneous);marine proteobacterium 'Tomales Bay wh clear'
-AF046835	cluster I	75772	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal 6-2'
-AF046834	cluster I	75758	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Bird Shoal 4-6';.;.
-AF046852	cluster I	75784	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay med white'
-AF046831	cluster I	75769	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal 1-9'
-AF046851	cluster I	75783	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay wh'
-AF046833	cluster I	75771	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal 1-31'
-AF046850	cluster I	75782	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay mg15'
-AF046832	cluster I	75770	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal 12-2'
-AF046843	cluster I	75785	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay 13-32f';.;.
-AF046845	cluster I	75778	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay 14-24'
 EF203422	cluster I	670	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio parahaemolyticus;.
-AF046838	cluster I	75774	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Bird Shoal sa4'
-AF046849	cluster I	75781	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay mg10'
 AF134809	cluster I	675	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;Vibrio;Vibrio cincinnatiensis;.
-AF046847	cluster I	75780	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay 5-24'
-AF046846	cluster I	75779	Bacteria;Proteobacteria;Gammaproteobacteria;Vibrionales;Vibrionaceae;unclassified Vibrionaceae;unclassified Vibrionaceae (miscellaneous);marine proteobacterium 'Tomales Bay 2-31'
-AF046844	cluster I	75786	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay 13-32r';.;.
 KLENIFH	cluster I	576	Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella sp.;.
-UNU43445	cluster I	73551	Bacteria;Proteobacteria;unclassified Proteobacteria;unclassified Proteobacteria (miscellaneous);marine proteobacterium L2-3;.;.;.
 UNU43437	cluster I	73557	Bacteria;Proteobacteria;environmental samples;unidentified marine proteobacterium 'UnkAssoc 2';.;.;.;.
-DQ913881	cluster I	412034	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;Celerinatantimonadaceae;Celerinatantimonas;Celerinatantimonas diazotrophica;.
-DQ913883	cluster I	412034	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;Celerinatantimonadaceae;Celerinatantimonas;Celerinatantimonas diazotrophica;.
-DQ913885	cluster I	412034	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;Celerinatantimonadaceae;Celerinatantimonas;Celerinatantimonas diazotrophica;.
 UNU43439	cluster I	73556	Bacteria;Proteobacteria;environmental samples;unidentified marine proteobacterium 'UnkAssoc 4';.;.;.;.
-DQ913882	cluster I	412034	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;Celerinatantimonadaceae;Celerinatantimonas;Celerinatantimonas diazotrophica;.
-DQ913884	cluster I	412034	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;Celerinatantimonadaceae;Celerinatantimonas;Celerinatantimonas diazotrophica;.
-AF046854	cluster I	75761	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay wc1-2 sm white';.;.
-UNU43438	cluster I	73555	Bacteria;Proteobacteria;unclassified Proteobacteria;unclassified Proteobacteria (miscellaneous);marine proteobacterium WC1-2(sm);.;.;.
-UNU43443	cluster I	73553	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay wc2-3 lg wh';.;.
-UNU43444	cluster I	73552	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay wc2-3 sm wh';.;.
-AF046853	cluster I	75760	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);marine proteobacterium 'Tomales Bay wc1-28';.;.
 AY644349	cluster I	69962	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azomonas;Azomonas macrocytogenes;.
 AF216883	cluster I	116849	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azomonas;Azomonas agilis;.
-EF191079	cluster I	420248	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;unclassified Pseudomonadaceae;nitrogen-fixing bacterium HS002;.
 EU035277	cluster I	460040	Bacteria;Actinobacteria;Actinobacteria;Micrococcales;Micrococcaceae;Arthrobacter;Arthrobacter sp. 61k;.
 EU035272	cluster I	460043	Bacteria;Proteobacteria;Gammaproteobacteria;Aeromonadales;Aeromonadaceae;Oceanimonas;Oceanimonas sp. 5a;.
 EU035278	cluster I	460039	Bacteria;Proteobacteria;Gammaproteobacteria;Aeromonadales;Aeromonadaceae;Aeromonas;Aeromonas sp. 7yc;.
@@ -412,18 +373,15 @@ EU693339	cluster I	521281	Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Bac
 EU693340	cluster I	521286	Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Bacillus;Bacillus sp. Z19;.
 AVIMONFE	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 EU693338	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
-EF107640	cluster I	414987	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);mangrove root bacterium HS001;.;.
 EF620491	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 EF634041	cluster I	56730	Bacteria;Proteobacteria;Alphaproteobacteria;Rhizobiales;Rhizobiaceae;Rhizobium;Rhizobium gallicum;.
 EF634050	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 EF634052	cluster I	44251	Bacteria;Firmicutes;Bacilli;Bacillales;Paenibacillaceae;Paenibacillus;Paenibacillus durus;.
-EF634051	cluster I	453286	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);gamma proteobacterium ISSDS-860;.;.
 EF634054	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 AB430882	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 EF634055	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 EF634053	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
 X03916	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
-AY972874	cluster I	322955	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);gamma proteobacterium BAL281;.;.
 AY660961	cluster I	295031	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Pseudomonas;Pseudomonas sp. K1-2004;.
 X13519	cluster I	354	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter vinelandii;.
 AY351672	cluster I	353	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azotobacter;Azotobacter chroococcum;.
@@ -453,7 +411,6 @@ AY115593	cluster I	158786	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillato
 TDTNIFHB	cluster I	1207	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Trichodesmium;Trichodesmium sp.;.;.
 AY221815	cluster I	129962	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Oscillatoria;Oscillatoria sancta;Oscillatoria sancta PCC 7515;.
 AF299425	cluster I	144381	Bacteria;Cyanobacteria;environmental samples;unidentified marine bacterial clone HT1909;.;.;.;.
-AY191962	cluster I	308769	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;unclassified Chroococcales;cyanobacterium KM9;.;.
 AF299420	cluster I	144374	Bacteria;Cyanobacteria;environmental samples;unidentified marine bacterial clone HT1902;.;.;.;.
 AB264110	cluster I	167942	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;Gloeothece;Gloeothece sp. KO68DGA;.;.
 AB264107	cluster I	167941	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;Gloeothece;Gloeothece sp. KO11DG;.;.
@@ -477,7 +434,6 @@ AF299418	cluster I	144376	Bacteria;Cyanobacteria;environmental samples;unidentif
 AF299424	cluster I	144379	Bacteria;Cyanobacteria;environmental samples;unidentified marine bacterial clone HT1907;.;.;.;.
 AF299419	cluster I	144377	Bacteria;Cyanobacteria;environmental samples;unidentified marine bacterial clone HT1905;.;.;.;.
 AY620241	cluster I	295077	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;Cyanothece;Cyanothece sp. WH 8904;.;.
-AF227934	cluster I	137306	Bacteria;Cyanobacteria;unclassified Cyanobacteria;marine stromatolite cyanobacterium HBC6C3;.;.;.;.
 AY768416	cluster I	65095	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Lyngbya;Lyngbya aestuarii;Lyngbya aestuarii PCC 7419;.
 AY768411	cluster I	197232	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;Gloeothece;Gloeothece membranacea;Gloeothece sp. PCC 6909;.
 EF392708	cluster I	197229	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Lyngbya;Lyngbya majuscula;Lyngbya majuscula CCAP 1446/4;.
@@ -584,7 +540,6 @@ EF570567	cluster I	458059	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Ma
 EF570569	cluster I	458061	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;Mastigocladus laminosus CCMEE 5267;.;.
 EF570565	cluster I	458057	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;Mastigocladus laminosus CCMEE 5379;.;.
 EF570564	cluster I	458056	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;Mastigocladus laminosus CCMEE 5205;.;.
-DQ471423	cluster I	384603	Bacteria;Cyanobacteria;Stigonematales;Fischerella;unclassified Fischerella;filamentous thermophilic cyanobacterium tBTRCCn 101;.;.
 EF570561	cluster I	458053	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;Mastigocladus laminosus CCMEE 5332;.;.
 EF570562	cluster I	458054	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;Mastigocladus laminosus CCMEE 5192;.;.
 DQ385916	cluster I	83541	Bacteria;Cyanobacteria;Stigonematales;Mastigocladus;Mastigocladus laminosus;.;.;.
@@ -637,7 +592,6 @@ DQ225763	cluster I	349907	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Richelia
 DQ225762	cluster I	349907	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Richelia;Richelia sp. SC01;.;.
 DQ531681	cluster I	387906	Bacteria;Cyanobacteria;Nostocales;Microchaetaceae;Tolypothrix;Tolypothrix distorta;Tolypothrix distorta var. symplocoides;Tolypothrix distorta var. symplocoides UTEX 'B 424'
 DQ531682	cluster I	387900	Bacteria;Cyanobacteria;Nostocales;Microchaetaceae;Tolypothrix;Tolypothrix sp. JCT-1;.;.
-EU381378	cluster I	512161	Bacteria;Cyanobacteria;Nostocales;unclassified Nostocales;unclassified Nostocales (miscellaneous);heterocystous cyanobacterium LD-B;.;.
 AY461415	cluster I	263920	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaenopsis;Anabaenopsis sp. NRE1;.;.
 AF124378	cluster I	92183	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena sp. I1;.;.
 DQ531671	cluster I	387902	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Nostoc;Nostoc commune;Nostoc commune CP;.
@@ -685,7 +639,6 @@ AY768410	cluster I	240292	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena
 AY768423	cluster I	1165	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena cylindrica;.;.
 AY768419	cluster I	272124	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena sp. PCC 9109;.;.
 DQ315787	cluster I	240292	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena variabilis;Anabaena variabilis ATCC 29413;.
-AF227947	cluster I	137307	Bacteria;Cyanobacteria;unclassified Cyanobacteria;Bahamian heterocystous cyanobacterium C1C5;.;.;.;.
 AY768412	cluster I	63737	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Nostoc;Nostoc punctiforme;Nostoc punctiforme PCC 73102;.
 DQ531676	cluster I	387906	Bacteria;Cyanobacteria;Nostocales;Microchaetaceae;Tolypothrix;Tolypothrix distorta;Tolypothrix distorta var. symplocoides;Tolypothrix distorta var. symplocoides UTEX 'B 424'
 DQ531692	cluster I	387893	Bacteria;Cyanobacteria;Nostocales;Rivulariaceae;Calothrix;Calothrix sp. MCC-3A;.;.
@@ -693,7 +646,6 @@ FSU49515	cluster I	70812	Bacteria;Cyanobacteria;Stigonematales;Fischerella;Fisch
 DQ294219	cluster I	360070	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena azotica;Anabaena azotica FACHB-118;.
 EF397903	cluster I	467598	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Microseira;Microseira wollei;.;.
 AY221816	cluster I	105592	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Symploca;Symploca atlantica;Symploca atlantica PCC 8002;.
-AF227933	cluster I	137305	Bacteria;Cyanobacteria;unclassified Cyanobacteria;marine stromatolite cyanobacterium HBC5C3;.;.;.;.
 AF013025	cluster I	105592	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Symploca;Symploca atlantica;Symploca atlantica PCC 8002;.
 EF397897	cluster I	467598	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Microseira;Microseira wollei;.;.
 EF397826	cluster I	467598	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Microseira;Microseira wollei;.;.
@@ -850,7 +802,6 @@ EF397814	cluster I	467598	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillato
 EF397783	cluster I	467598	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Microseira;Microseira wollei;.;.
 AY485152	cluster I	65399	Bacteria;Cyanobacteria;Oscillatoriophycideae;Chroococcales;Halothece cluster;Halothece;Halothece sp. MPI 96P605;.
 XSU73135	cluster I	102125	Bacteria;Cyanobacteria;Pleurocapsales;Xenococcus;Xenococcus sp. PCC 7305;.;.;.
-AF227932	cluster I	137304	Bacteria;Cyanobacteria;unclassified Cyanobacteria;marine stromatolite cyanobacterium HBC2C2;.;.;.;.
 AY422706	cluster I	251229	Bacteria;Cyanobacteria;Pleurocapsales;Chroococcidiopsis;Chroococcidiopsis thermalis;Chroococcidiopsis thermalis PCC 7203;.;.
 AJ620858	cluster I	251219	Bacteria;Cyanobacteria;Pleurocapsales;Chroococcidiopsis;Chroococcidiopsis sp. 'Bad Sachsa';.;.;.
 DSU73134	cluster I	111780	Bacteria;Cyanobacteria;Pleurocapsales;Stanieria;Stanieria cyanosphaera;Stanieria cyanosphaera PCC 7437;.;.
@@ -864,9 +815,7 @@ PSU73132	cluster I	102129	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillato
 AY768425	cluster I	272127	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Oscillatoria;Oscillatoria sp. CCAP 1459/26;.;.
 EU381354	cluster I	512156	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaena;Anabaena sp. BC1;.;.
 EU381353	cluster I	263920	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaenopsis;Anabaenopsis sp. NRE1;.;.
-DQ471424	cluster I	384606	Bacteria;Cyanobacteria;unclassified Cyanobacteria;filamentous thermophilic cyanobacterium tBTRCCn 301;.;.;.;.
 EU381355	cluster I	263920	Bacteria;Cyanobacteria;Nostocales;Nostocaceae;Anabaenopsis;Anabaenopsis sp. NRE1;.;.
-DQ471425	cluster I	384605	Bacteria;Cyanobacteria;unclassified Cyanobacteria;filamentous thermophilic cyanobacterium tBTRCCn 24;.;.;.;.
 AY768415	cluster I	118166	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Nodosilinea;Nodosilinea nodulosa;Nodosilinea nodulosa PCC 7104;.
 LYNNIFH	cluster I	462679	Bacteria;Cyanobacteria;Oscillatoriophycideae;Oscillatoriales;Lyngbya;Lyngbya lagerheimii;Lyngbya lagerheimii UTEX 1930;.
 AY231579	cluster I	572480	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Arcobacter;Arcobacter nitrofigilis;Arcobacter nitrofigilis DSM 7299
@@ -1037,10 +986,7 @@ EU862924	cluster I	152530	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Fran
 X76399	cluster I	1855	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp.;.
 EU862918	cluster I	106370	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp. CcI3;.
 FSU78306	cluster I	1855	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp.;.
-AY714296	cluster I	295396	Bacteria;Actinobacteria;Actinobacteria;Actinomycetales;unclassified Actinomycetales;unclassified Actinomycetales (miscellaneous);actinomycete L3;.
-AY714297	cluster I	42888	Bacteria;Actinobacteria;Actinobacteria;Actinomycetales;unclassified Actinomycetales;unclassified Actinomycetales (miscellaneous);unidentified actinomycete L5;.
 AY059395	cluster I	106370	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp. CcI3;.
-AY714295	cluster I	264594	Bacteria;Actinobacteria;Actinobacteria;Streptosporangiales;Thermomonosporaceae;unclassified Thermomonosporaceae;actinomycete 7501;.
 X73983	cluster I	1855	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp.;.
 AY714294	cluster I	295394	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp. IPN Ce16;.
 EU862915	cluster I	1858	Bacteria;Actinobacteria;Actinobacteria;Frankiales;Frankiaceae;Frankia;Frankia sp. ArI3;.
@@ -1107,15 +1053,12 @@ AF296358	cluster IV	170861	Archaea;Euryarchaeota;Methanomicrobia;Methanosarcinal
 AF296356	cluster IV	170861	Archaea;Euryarchaeota;Methanomicrobia;Methanosarcinales;Methanosarcinaceae;Methanosarcina;Methanosarcina lacustris;.
 AF296357	cluster IV	170861	Archaea;Euryarchaeota;Methanomicrobia;Methanosarcinales;Methanosarcinaceae;Methanosarcina;Methanosarcina lacustris;.
 AM501475	cluster IV	431059	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Comamonadaceae;Pelomonas;Pelomonas puraquae;.
-AM501480	cluster IV	431060	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;unclassified Burkholderiales;Burkholderiales Genera incertae sedis;Roseateles;Roseateles terrae
 AM501477	cluster IV	431059	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Comamonadaceae;Pelomonas;Pelomonas puraquae;.
-AM501479	cluster IV	76731	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;unclassified Burkholderiales;Burkholderiales Genera incertae sedis;Roseateles;Roseateles depolymerans
 AM501478	cluster IV	431059	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Comamonadaceae;Pelomonas;Pelomonas puraquae;.
 AM501476	cluster IV	431059	Bacteria;Proteobacteria;Betaproteobacteria;Burkholderiales;Comamonadaceae;Pelomonas;Pelomonas puraquae;.
 X07500	cluster IV	2186	Archaea;Euryarchaeota;Methanococci;Methanococcales;Methanococcaceae;Methanothermococcus;Methanothermococcus thermolithotrophicus;.
 X60727	cluster IV	394503	Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococcaceae;Ruminiclostridium;[Clostridium] cellulolyticum;[Clostridium] cellulolyticum H10
 X03777	cluster IV	2188	Archaea;Euryarchaeota;Methanococci;Methanococcales;Methanococcaceae;Methanococcus;Methanococcus voltae;.
-EF079969	cluster IV	412882	Archaea;Euryarchaeota;Methanococci;Methanococcales;unclassified Methanococcales;hyperthermophilic methanogen FS406-22;.;.
 AB019138	cluster IV	420247	Archaea;Euryarchaeota;Methanobacteria;Methanobacteriales;Methanobacteriaceae;Methanobrevibacter;Methanobrevibacter smithii;Methanobrevibacter smithii ATCC 35061
 AB019137	cluster IV	634498	Archaea;Euryarchaeota;Methanobacteria;Methanobacteriales;Methanobacteriaceae;Methanobrevibacter;Methanobrevibacter ruminantium;Methanobrevibacter ruminantium M1
 AB236340	cluster IV	237506	Bacteria;Firmicutes;Clostridia;Clostridiales;Clostridiaceae;Clostridium;Clostridium sp. Kas107-1;.
@@ -1132,11 +1075,9 @@ AF325799	cluster II	717227	Bacteria;Spirochaetes;Spirochaetia;Spirochaetales;Spi
 AF325798	cluster II	164	Bacteria;Spirochaetes;Spirochaetia;Spirochaetales;Spirochaetaceae;Treponema;Treponema pectinovorum;.
 AB052653	cluster II	615	Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Serratia;Serratia marcescens;.
 AF545638	cluster II	573	Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacteriales;Enterobacteriaceae;Klebsiella;Klebsiella pneumoniae;.
-AY972875	cluster II	322953	Bacteria;Proteobacteria;Gammaproteobacteria;unclassified Gammaproteobacteria;unclassified Gammaproteobacteria (miscellaneous);gamma proteobacterium BAL286;.;.
 AY644348	cluster II	69962	Bacteria;Proteobacteria;Gammaproteobacteria;Pseudomonadales;Pseudomonadaceae;Azomonas;Azomonas macrocytogenes;.
 AB279989	cluster II	237497	Bacteria;Firmicutes;Clostridia;Clostridiales;Clostridiaceae;Clostridium;Clostridium sp. Kas107-2;.
 AY221830	cluster II	2187	Archaea;Euryarchaeota;Methanococci;Methanococcales;Methanococcaceae;Methanococcus;Methanococcus vannielii;.
-EF079967	cluster II	412882	Archaea;Euryarchaeota;Methanococci;Methanococcales;unclassified Methanococcales;hyperthermophilic methanogen FS406-22;.;.
 AY221829	cluster II	145262	Archaea;Euryarchaeota;Methanobacteria;Methanobacteriales;Methanobacteriaceae;Methanothermobacter;Methanothermobacter thermautotrophicus;.
 X56071	cluster II	2163	Archaea;Euryarchaeota;Methanobacteria;Methanobacteriales;Methanobacteriaceae;Methanobacterium;Methanobacterium ivanovii;.
 AY221826	cluster II	44251	Bacteria;Firmicutes;Bacilli;Bacillales;Paenibacillaceae;Paenibacillus;Paenibacillus durus;.
