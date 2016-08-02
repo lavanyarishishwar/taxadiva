@@ -148,6 +148,16 @@ $programPath = "";
 # BLAST
 $programPath = `which blastn`;
 die "\nERROR (Line ".__LINE__."): BLASTN not found! Please make sure BLASTN is installed and is in the \$PATH variable.\nTo install BLASTN, download the binaries/source from http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download and place it in your \$PATH\n" if(length($programPath) == 0);
+my $blastVersion = `blastn -version | head -1 | sed 's/blastn: //'`;
+chomp $blastVersion;
+if($blastVersion =~ m/^2./){
+	# The BLAST version is 2.2.XX
+	$blastVersion =~ s/2.2.//;
+	$blastVersion =~ s/\+$//;
+	if($blastVersion < 31){
+		die "An older version of BLAST is detected (2.2.$blastVersion).  Please upgrade to BLAST+ version 2.2.31+.  The BLAST latest binaries can be obtained from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/\n";
+	}
+}
 $programPath = "";
 
 # USEARCH
@@ -420,7 +430,7 @@ sub taxAssign{
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
-	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1  -max_hsps_per_subject 1 -num_threads $threads | tee $out.blast.tsv`;
+	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1  -max_hsps 1 -num_threads $threads | tee $out.blast.tsv`;
 	print STDERR "Done\n[$out][Step 5]\tProcessing results...";
 	
 	# These are emperically calculated threshold values
@@ -541,7 +551,7 @@ sub taxAssignBatch{
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
-	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps_per_subject 1 -num_threads $threads | tee $out.blast.tsv`;
+	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $out.blast.tsv`;
 	print STDERR "Done\n[$out][Step 5]\tProcessing results...";
 	
 	# Old Paradigm
@@ -562,8 +572,8 @@ sub taxAssignBatch{
 	
 	my @blast = split(/\n/, $blOut);
 	
-	foreach (@blast){
-		my ($q, $s, $e, $p) = split(/\t/, $_);
+	for(my $i=0; $i < @blast; $i++){
+		my ($q, $s, $e, $p) = split(/\t/, $blast[$i]);
 		if($p > $family){
 			
 			$q =~ s/;size.*$//;
@@ -616,7 +626,7 @@ sub taxAssignBatch{
 		$otu2Keep{$_} = 1;
 	}
 	
-	open FILE, "<$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $out.clusters.tsv: $!\n";
+	open FILE, "<$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $out.up: $!\n";
 	while(<FILE>){
 		chomp $_;
 		my ($query, $type, @vars) = split(/\t/, $_);
@@ -630,7 +640,7 @@ sub taxAssignBatch{
 		$size =~ s/;\s*$//;
 		
 		if(defined $assignments{$otu}{"class"}){
-			next if($assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should not ever be true
+			next if($assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should never be true
 			
 			if(defined $assignments{$otu}{"class"}){
 				$classCounts{$bin}{$assignments{$otu}{"class"}} += $size;
@@ -712,6 +722,7 @@ sub taxAssignBatch{
 		#The following code would've printed the taxonomy ID
 		#print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
 		#The new one will print the taxonomy hierarchy
+		next if(! defined $assignments{$otus[$i]}{"accn"});
 		if(defined $spfFormat{$assignments{$otus[$i]}{"accn"}}){
 			my $name = $spfFormat{$assignments{$otus[$i]}{"accn"}};
 			$name =~ s/\t/;/g;
@@ -755,15 +766,41 @@ sub taxAssignBatch{
 #	Will also re-label the NETWORK.gexf and TOPOLOGY.gefx
 #	based on the labelling from the database and the 
 #	representative sequences from NODE-REPRESENTATIVES.fasta
-#	file
+#	file 
 #
 ###########################################
 sub oligotype{
 	my ($prefix) = @_;
 	
-	# this is the input file for the oligotyping analysis
-	my $in = $prefix.".reads.temp";
 	print STDERR "[$prefix][Step 7]\tRunning MED analysis...";
+	print STDERR "[$prefix][Step 7]\t\tReformatting sequence description to work with MED...";
+	
+	# this is the input file for the oligotyping analysis
+	my $in = $prefix.".reads.med";
+	
+	# this is the original merged input file that needs to be edited
+	# the descriptor lines are required to be changed
+	open FILE, "<$prefix.reads.temp" or die "\nERROR (Line ".__LINE__."): Cannot open input file $prefix.reads.temp: $!\n";
+	open OUT, ">$in" or die "\nERROR (Line ".__LINE__."): Cannot open output file $in: $!\n";
+	my $seqindex = 1;
+	my $last = "";
+	while(<FILE>){
+		if($_ =~ m/^>/){
+			$_ =~ s/^>//;
+			$_ =~ s/:.*$//;
+			$_ =~ s/[^a-zA-Z0-9]//g;
+			if($last ne $_){
+				$seqindex = 1;
+				$last = $_;
+			}
+			$_ = "Sample-".$_."_Read$seqindex\n";
+			$seqindex++;
+		}
+		print OUT $_;
+	}
+	close OUT;
+	close FILE;
+	
 	
 	# Create a subdirectory MED inside the output prefix for storing the output
 	`mkdir -p $prefix/MED`;
@@ -787,7 +824,7 @@ sub oligotype{
 	print STDERR "\n\t\tFinish running decompose, initiating BLAST...";
 	
 	# BLAST the representative sequences against the database to get the name
-	my $results = `blastn -query $prefix/MED/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps_per_subject 1 -num_threads $threads | tee $prefix/MED/oligoBlast.tsv`;
+	my $results = `blastn -query $prefix/MED/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $prefix/MED/oligoBlast.tsv`;
 	my @results = split(/\n/, $results);
 	my %mapping;
 	foreach my $this (@results){
