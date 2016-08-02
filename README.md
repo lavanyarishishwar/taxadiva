@@ -103,4 +103,5 @@ By default, the script assumes that it can run 10 threads which may not be possi
 
 
 ## Version Updates
+-0.10 - Stable version.  Alpha tested with following procedure: sequence quality control (prinseq), read merging (PEAR), read clustering (USEARCH), taxonomy assignment (BLAST + processing), KRONA plot generation, oligotyping (MED; optional).  MED is fully functional.  Instead of creating multiple output files, creates an output directory and places all the output files in it.
 - 0.9 - Last stable version.  Alpha tested the following procedure: sequence quality control (prinseq), read merging (PEAR), read clustering (USEARCH), taxonomy assignment (BLAST + processing), KRONA plot generation, oligotyping (MED; optional).
