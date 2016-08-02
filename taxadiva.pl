@@ -314,7 +314,7 @@ sub preprocess{
 		print STDERR "[$out][Step 1]\tTrimming primers...\n";
 		`prinseq-lite.pl -fasta $outFile/$out-pear.fa -out_good $outFile/$out -trim_left $pLeft -trim_right $pRight 1>&2 2>> $outFile/$out.log`;
 		if($keepTrimmedPrimers > 0){
-			open FILE, "<$outFile$out-pear.fa" or die "Cannot open PEAR output $outFile/$out-pear.fa: $!\n";
+			open FILE, "<$outFile/$out-pear.fa" or die "Cannot open PEAR output $outFile/$out-pear.fa: $!\n";
 			open LEFT, ">$outFile/$out.trimmedLeft.fa" or die "Cannot create output file $outFile/$out.trimmedLeft.fa: $!\n";
 			open RIGHT, ">$outFile/$out.trimmedRight.fa" or die "Cannot create output file $outFile/$out.trimmedRight.fa: $!\n";
 			
