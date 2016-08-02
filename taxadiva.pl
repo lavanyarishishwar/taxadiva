@@ -2,8 +2,8 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  : 15th July 2016
-# Version        : 0.10
+# Last Modified  :  2nd Aug 2016
+# Version        : 0.10.3
 #
 #############################################################
 use strict;
@@ -14,7 +14,7 @@ use threads::shared;
 
 #   Pretty usage
 my $programHead = "TaxADivA - TAXonomic Assignment and DIVersity Assessment for amplicon reads\n";
-my $baseUsage = "           [-o <STRING. output prefix to store results. Default: input f>]
+my $baseUsage = "           [-o <STRING. output prefix to store results. Default: input filename>]
            [-d <STRING. Database. Default: db.fasta>] [-t <STRING. Taxonomy file. Default: tax.tsv>]
            [-p <INT. Primer length to be trimmed. Default: no trimming>]
            [-r <INT. Primer length to be trimmed from the RIGHT. Default: no trimming>]
@@ -51,6 +51,7 @@ my $medParameters = "";
 my $goodDepth = 5000;
 my $oligotyping = 0;
 my $medMetadataFile = "decompose_map3.tab";
+my $maxHsps = "";
 my %tax; my %tax2Species; my %family; my %genus; my %class; my %uniqueClass; my %taxid; my %spfFormat;
 share(%tax); share(%tax2Species); share(%family); share(%genus); share(%class); share(%uniqueClass); share(%taxid);
 #############################################################
@@ -125,12 +126,10 @@ if(length($outFile) == 0 || $outFile =~ m{[\\:*?"<>|]}){
 	exit;
 }
 
-if($outFile =~ m/\//){
-	my @parts = split(/\//, $outFile);
-	pop(@parts);
-	my $prefix = join("/", @parts);
-	`mkdir -p $prefix` if(! -e $prefix);
+if(-e $outFile && -d $outFile){
+	print STDERR "WARNING: Output directory already exists! Content will be overwritten!\n";
 }
+`mkdir -p $outFile`;
 
 print STDERR "everything looks fine.\n";
 
@@ -148,16 +147,24 @@ $programPath = "";
 # BLAST
 $programPath = `which blastn`;
 die "\nERROR (Line ".__LINE__."): BLASTN not found! Please make sure BLASTN is installed and is in the \$PATH variable.\nTo install BLASTN, download the binaries/source from http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download and place it in your \$PATH\n" if(length($programPath) == 0);
-my $blastVersion = `blastn -version | head -1 | sed 's/blastn: //'`;
-chomp $blastVersion;
-if($blastVersion =~ m/^2./){
+# Not used for now
+#my $blastVersion = `blastn -version | head -1 | sed 's/blastn: //'`;
+#chomp $blastVersion;
+#if($blastVersion =~ m/^2.2/){
 	# The BLAST version is 2.2.XX
-	$blastVersion =~ s/2.2.//;
-	$blastVersion =~ s/\+$//;
-	if($blastVersion < 31){
-		die "An older version of BLAST is detected (2.2.$blastVersion).  Please upgrade to BLAST+ version 2.2.31+.  The BLAST latest binaries can be obtained from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/\n";
-	}
-}
+#	$blastVersion =~ s/2.2.//;
+#	$blastVersion =~ s/\+$//;
+#	if($blastVersion < 31){
+#		die "An older version of BLAST is detected (2.2.$blastVersion).  Please upgrade to BLAST+ version 2.2.31+.  The BLAST latest binaries can be obtained from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/\n";
+#	}
+#	$maxHsps = "-max_hsps 1";
+#} elsif ($blastVersion =~ m/^2.3/) {
+#	$maxHsps = "-max_hsps 1";
+#} elsif ($blastVersion =~ m/^2.4/){
+#	$maxHsps = "-max_hsps 1";
+#} else {
+#	print STDERR "WARNING: BLAST version of $blastVersion was found, this has not been tested with the script and may throw error.  The script has been tested on 2.2.31+, 2.3 or 2.4 versions.  Proceeding nevertheless.\n";
+#}
 $programPath = "";
 
 # USEARCH
@@ -204,6 +211,7 @@ if($oligotyping == 1){
 }
 
 print STDERR "found everything I need.\n";
+
 
 #############################################################
 #	Function definitions
@@ -297,18 +305,18 @@ sub preprocess{
 	
 	print STDERR "[$out][Step 1]\tMerging reads using PEAR (approx ~ 2 min)...\n";
 	
-	`pear -f $r1 -r $r2 -o $out-pear $pearParameters`; # Need to revisit this command in future
+	`pear -f $r1 -r $r2 -o $outFile/$out-pear $pearParameters`; # Need to revisit this command in future
 	
 	print STDERR "[$out][Step 1]\tConverting FASTQ to FASTA...\n";
-	`awk 'BEGIN{c=0} {c++; if(c==1){print ">"\$0}; if(c==2){print}; if(c==4){c=0}}' $out-pear.assembled.fastq > $out-pear.fa`;
+	`awk 'BEGIN{c=0} {c++; if(c==1){print ">"\$0}; if(c==2){print}; if(c==4){c=0}}' $outFile/$out-pear.assembled.fastq > $outFile/$out-pear.fa`;
 	
 	if($pRight+$pLeft > 0){
 		print STDERR "[$out][Step 1]\tTrimming primers...\n";
-		`prinseq-lite.pl -fasta $out-pear.fa -out_good $out -trim_left $pLeft -trim_right $pRight 1>&2 2>> $out.log`;
+		`prinseq-lite.pl -fasta $outFile/$out-pear.fa -out_good $outFile/$out -trim_left $pLeft -trim_right $pRight 1>&2 2>> $outFile/$out.log`;
 		if($keepTrimmedPrimers > 0){
-			open FILE, "<$out-pear.fa" or die "Cannot open PEAR output $out-pear.fa: $!\n";
-			open LEFT, ">$out.trimmedLeft.fa" or die "Cannot create output file $out.trimmedLeft.fa: $!\n";
-			open RIGHT, ">$out.trimmedRight.fa" or die "Cannot create output file $out.trimmedRight.fa: $!\n";
+			open FILE, "<$outFile$out-pear.fa" or die "Cannot open PEAR output $outFile/$out-pear.fa: $!\n";
+			open LEFT, ">$outFile/$out.trimmedLeft.fa" or die "Cannot create output file $outFile/$out.trimmedLeft.fa: $!\n";
+			open RIGHT, ">$outFile/$out.trimmedRight.fa" or die "Cannot create output file $outFile/$out.trimmedRight.fa: $!\n";
 			
 			while(<FILE>){
 				my $desc = $_;
@@ -321,13 +329,13 @@ sub preprocess{
 			}
 			close FILE;
 		}
-		`mv $out.fasta $out.reads.temp`;
+		`mv $outFile/$out.fasta $outFile/$out.reads.temp`;
 		print STDERR "[$out][Step 1]\tTrimming Done\n";
 	} else {
-		`mv $out-pear.fa $out.reads.temp`;
+		`mv $outFile/$out-pear.fa $outFile/$out.reads.temp`;
 	}
 	
-	`rm $out-pear*`;
+	`rm $outFile/$out-pear*`;
 	
 	return 1;
 }
@@ -344,11 +352,11 @@ sub mergeReads{
 	my ($prefix, @files) = @_;
 	my $out = $prefix.".reads.temp";
 	print STDERR "[$prefix][Step 1]\tMerging processed reads (total of ".@files." files)...";
-	open OUT, ">$out" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out:$!\n";
+	open OUT, ">$outFile/$out" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out:$!\n";
 	
 	foreach my $file (@files){
 		
-		open FILE, "<$file.reads.temp" or die "\nERROR (Line ".__LINE__."): Cannot open input file $file.reads.temp:$!\n";
+		open FILE, "<$outFile/$file.reads.temp" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outFile/$file.reads.temp:$!\n";
 		my $prefix = $file;
 		$prefix =~ s/.reads.temp//;
 		
@@ -385,14 +393,14 @@ sub taxAssign{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $out.reads.temp -fastaout $out.reads.derep -sizeout -threads $threads 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -derep_fulllength $outFile/$out.reads.temp -fastaout $outFile/$out.reads.derep -sizeout -threads $threads 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_otus $out.reads.derep -otus $out.otus.fa -uparseout $out.up -relabel OTU -minsize 2 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -cluster_otus $outFile/$out.reads.derep -otus $outFile/$out.otus.fa -uparseout $outFile/$out.up -relabel OTU -minsize 2 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
-	`$usearchProgram -uchime_ref $out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $out.nochim.fa -uchimeout $out.uchime -uchimealns $out.aln 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -uchime_ref $outFile/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outFile/$out.nochim.fa -uchimeout $outFile/$out.uchime -uchimealns $outFile/$out.aln 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	
 	# Old paradigm
 	#`usearch -uchime_ref $out.reads.temp -db $db -strand plus -minh 0.28 -nonchimeras $out.reads.fasta 1>> $out.log 2>> $out.log`;
@@ -403,7 +411,7 @@ sub taxAssign{
 	my $total = 0;
 	my %otuSizes;
 	my %otu2Keep;
-	my $otu2Keep = `grep '^>' $out.nochim.fa`;
+	my $otu2Keep = `grep '^>' $outFile/$out.nochim.fa`;
 	my @otu2Keep = split(/\n/, $otu2Keep);
 	foreach(@otu2Keep){
 		chomp $_;
@@ -411,7 +419,7 @@ sub taxAssign{
 		$otu2Keep{$_} = 1;
 	}
 	
-	open FILE, "<$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $out.clusters.tsv: $!\n";
+	open FILE, "<$outFile/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outFile/$out.clusters.tsv: $!\n";
 	while(<FILE>){
 		chomp $_;
 		my ($query, $type, @vars) = split(/\t/, $_);
@@ -430,7 +438,7 @@ sub taxAssign{
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
-	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1  -max_hsps 1 -num_threads $threads | tee $out.blast.tsv`;
+	my $blOut = `blastn -query $outFile/$out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1  -max_hsps 1 -num_threads $threads | tee $outFile/$out.blast.tsv`;
 	print STDERR "Done\n[$out][Step 5]\tProcessing results...";
 	
 	# These are emperically calculated threshold values
@@ -490,7 +498,7 @@ sub taxAssign{
 #	close OUT;
 	
 	# Class abundance plot file
-	open OUT, ">$out.abundance.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.abundance.txt: $!\n";
+	open OUT, ">$outFile/$out.abundance.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out.abundance.txt: $!\n";
 	my $percent = 0;
 	my @classes = sort keys %uniqueClass;
 	print OUT "Class\t$out\n";
@@ -504,7 +512,7 @@ sub taxAssign{
 	close OUT;
 	
 	# This file will be used to generate the krona plot
-	open OUT, ">$out.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.krona.txt: $!\n";
+	open OUT, ">$outFile/$out.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out.krona.txt: $!\n";
 	foreach my $key (keys %counts){
 		my $text = $key;
 		$text =~ s/\//&#47;/g;
@@ -513,7 +521,7 @@ sub taxAssign{
 	print OUT ($total-$assigned)."\tUnassigned OTU\n";
 	close OUT;
 	print STDERR "Done\n\tMaking plots...";
-	`ktImportText -n nifH $out.krona.txt -o $out.krona.html`;
+	`ktImportText -n nifH $outFile/$out.krona.txt -o $outFile/$out.krona.html`;
 }
 # Function: taxAssignBatch ################
 #	Input: File prefix to be processed,
@@ -536,14 +544,14 @@ sub taxAssignBatch{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $out.reads.temp -fastaout $out.reads.derep -sizeout -threads $threads 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -derep_fulllength $outFile/$out.reads.temp -fastaout $outFile/$out.reads.derep -sizeout -threads $threads 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_otus $out.reads.derep -otus $out.otus.fa -uparseout $out.up -relabel OTU -minsize 2 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -cluster_otus $outFile/$out.reads.derep -otus $outFile/$out.otus.fa -uparseout $outFile/$out.up -relabel OTU -minsize 2 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
-	`$usearchProgram -uchime_ref $out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $out.nochim.fa -uchimeout $out.uchime -uchimealns $out.aln 1>> $out.log 2>> $out.log`;
+	`$usearchProgram -uchime_ref $outFile/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outFile/$out.nochim.fa -uchimeout $outFile/$out.uchime -uchimealns $outFile/$out.aln 1>> $outFile/$out.log 2>> $outFile/$out.log`;
 	
 	# Old paradigm
 	#`usearch -uchime_ref $out.reads.temp -db $db -strand plus -minh 0.28 -nonchimeras $out.reads.fasta 1>> $out.log 2>> $out.log`;
@@ -551,7 +559,7 @@ sub taxAssignBatch{
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
-	my $blOut = `blastn -query $out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $out.blast.tsv`;
+	my $blOut = `blastn -query $outFile/$out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $outFile/$out.blast.tsv`;
 	print STDERR "Done\n[$out][Step 5]\tProcessing results...";
 	
 	# Old Paradigm
@@ -618,7 +626,7 @@ sub taxAssignBatch{
 	my %biomBins;
 	
 	my %otu2Keep;
-	my $otu2Keep = `grep '^>' $out.nochim.fa`;
+	my $otu2Keep = `grep '^>' $outFile/$out.nochim.fa`;
 	my @otu2Keep = split(/\n/, $otu2Keep);
 	foreach(@otu2Keep){
 		chomp $_;
@@ -626,7 +634,7 @@ sub taxAssignBatch{
 		$otu2Keep{$_} = 1;
 	}
 	
-	open FILE, "<$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $out.up: $!\n";
+	open FILE, "<$outFile/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outFile/$out.up: $!\n";
 	while(<FILE>){
 		chomp $_;
 		my ($query, $type, @vars) = split(/\t/, $_);
@@ -664,7 +672,7 @@ sub taxAssignBatch{
 	print STDERR "Done\n[$out][Step 6]\tOutputting results to files...";
 	
 	# Class abundance files
-	open ABND, ">$out.abundance.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.abundance.txt: $!\n";
+	open ABND, ">$outFile/$out.abundance.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out.abundance.txt: $!\n";
 	foreach my $key (keys %classesSeen){
 		next unless(acceptable($key));
 		print ABND "\t$key";
@@ -687,7 +695,7 @@ sub taxAssignBatch{
 		
 	# Set of krona files
 	foreach my $bin (keys %clusterCount){
-		open KRONA, ">$bin.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $bin.krona.txt: $!\n";
+		open KRONA, ">$outFile/$bin.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$bin.krona.txt: $!\n";
 		foreach my $key (keys %{$clusterCount{$bin}}){
 			my $text = $key;
 			$text =~ s/\//&#47;/g;
@@ -706,7 +714,7 @@ sub taxAssignBatch{
 	my @biomBins = keys %biomBins;
 	my @otus = keys %biom;
 	
-	open BIOM, ">$out.otu_table.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.otu_table.txt: $!\n";
+	open BIOM, ">$outFile/$out.otu_table.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out.otu_table.txt: $!\n";
 	print BIOM "# Constructed from biom file\n";
 	print BIOM "#OTU ID";
 	foreach (@biomBins){
@@ -714,6 +722,8 @@ sub taxAssignBatch{
 	}
 	print BIOM "\ttaxonomy\n";
 	for(my $i = 0; $i < @otus; $i++){
+		next if(! defined $assignments{$otus[$i]}{"accn"});
+		
 		print BIOM "denovo".($i+1);
 		foreach my $bin (@biomBins){
 			$biom{$otus[$i]}{$bin} //= 0;
@@ -722,7 +732,6 @@ sub taxAssignBatch{
 		#The following code would've printed the taxonomy ID
 		#print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
 		#The new one will print the taxonomy hierarchy
-		next if(! defined $assignments{$otus[$i]}{"accn"});
 		if(defined $spfFormat{$assignments{$otus[$i]}{"accn"}}){
 			my $name = $spfFormat{$assignments{$otus[$i]}{"accn"}};
 			$name =~ s/\t/;/g;
@@ -736,7 +745,7 @@ sub taxAssignBatch{
 	
 	# This is where the STAMPS spf file is generated
 	
-	open SPF, ">$out.spf" or die "\nERROR (Line ".__LINE__."): Cannot create output file $out.spf: $!\n";
+	open SPF, ">$outFile/$out.spf" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outFile/$out.spf: $!\n";
 	print SPF "Domain\tPhylum\tClass\tOrder\tFamily\tGenus\tSpecies";
 	foreach (@biomBins){
 		print SPF "\t$_";
@@ -772,16 +781,19 @@ sub taxAssignBatch{
 sub oligotype{
 	my ($prefix) = @_;
 	
-	print STDERR "[$prefix][Step 7]\tRunning MED analysis...";
-	print STDERR "[$prefix][Step 7]\t\tReformatting sequence description to work with MED...";
+	print STDERR "[$prefix][Step 7]\tRunning MED analysis...\n";
+	print STDERR "[$prefix][Step 7]\tReformatting sequence description to work with MED...";
+	
+	# Create a subdirectory MED inside the output prefix for storing the output
+	`mkdir -p $prefix/MED`;
 	
 	# this is the input file for the oligotyping analysis
 	my $in = $prefix.".reads.med";
 	
 	# this is the original merged input file that needs to be edited
 	# the descriptor lines are required to be changed
-	open FILE, "<$prefix.reads.temp" or die "\nERROR (Line ".__LINE__."): Cannot open input file $prefix.reads.temp: $!\n";
-	open OUT, ">$in" or die "\nERROR (Line ".__LINE__."): Cannot open output file $in: $!\n";
+	open FILE, "<$outFile/$prefix.reads.temp" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outFile/$prefix.reads.temp: $!\n";
+	open OUT, ">$outFile/MED/$in" or die "\nERROR (Line ".__LINE__."): Cannot open output file $outFile/MED/$in: $!\n";
 	my $seqindex = 1;
 	my $last = "";
 	while(<FILE>){
@@ -793,7 +805,7 @@ sub oligotype{
 				$seqindex = 1;
 				$last = $_;
 			}
-			$_ = "Sample-".$_."_Read$seqindex\n";
+			$_ = ">$_"."_$seqindex\n";
 			$seqindex++;
 		}
 		print OUT $_;
@@ -802,8 +814,6 @@ sub oligotype{
 	close FILE;
 	
 	
-	# Create a subdirectory MED inside the output prefix for storing the output
-	`mkdir -p $prefix/MED`;
 	
 	if(length($medParameters) != 0){
 		my @parts = split(/\s+/, $medParameters);
@@ -815,16 +825,30 @@ sub oligotype{
 		}
 	}
 	
-	`o-pad-with-gaps $in -o $in.withPadgaps`;
-	`decompose -o $prefix/MED $medParameters $in.withPadgaps -E $medMetadataFile`; #JCGaby removed --gen-html on July 7 2016
-	close OUT;
+	print STDERR "Done!\n\tPadding sequences with gaps...";
 	
+	`o-pad-with-gaps $outFile/MED/$in -o $outFile/MED/$in.withPadgaps`;
+	
+	print STDERR "Done!\n";
+	print STDERR "\tStarting decompose...";
+	
+	`decompose -o $prefix/MED $medParameters -E $medMetadataFile $outFile/MED/$in.withPadgaps`; #JCGaby removed --gen-html on July 7 2016
+	
+	die "\nError: The output from oligotyping was not found! Exiting.\n" if(! -e "$prefix/MED/NODE-REPRESENTATIVES.fasta");
 	#my $key = "";
 	
 	print STDERR "\n\t\tFinish running decompose, initiating BLAST...";
 	
 	# BLAST the representative sequences against the database to get the name
-	my $results = `blastn -query $prefix/MED/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $prefix/MED/oligoBlast.tsv`;
+	my $results = `blastn -query $prefix/MED/NODE-REPRESENTATIVES.fasta -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads 2> $prefix/MED/blast.err | tee $prefix/MED/oligoBlast.tsv`;
+	
+	open ERR, "<$prefix/MED/blast.err" or die "\nERROR (Line ".__LINE__."): Cannot open input file $prefix/MED/blast.err: $!\n";
+	while(<ERR>){
+		next if($_ =~ m/Hyphens are invalid and will be ignored/);
+		print STDERR $_;
+	}
+	close ERR;
+	
 	my @results = split(/\n/, $results);
 	my %mapping;
 	foreach my $this (@results){
@@ -861,6 +885,7 @@ sub oligotype{
 	open OUT, ">$prefix/MED/labelled.TOPOLOGY.gexf" or die "Cannot create output file $prefix/MED/labelled.NETWORK.gexf: $!\n";
 	print OUT $file;
 	close OUT;
+	print STDERR "done\n";
 	print STDERR "[$prefix][Step 7]\tCompleted\n";
 }
 
