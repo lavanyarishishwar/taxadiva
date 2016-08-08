@@ -6,28 +6,61 @@ TaxADivA is a wrapper script written in Perl to facilitate the analysis of nifH 
 
 As of July 2016, the script is under development and not fully tested.  Users are advised to use the script with caution.
 
-The script uses threading to parallelize the processing of sequences and thereby reduce run time. Similar to the above-described pipeline, sequences are merged with PEAR (Zhang J et al 2014. Bioinformatics 30:614–620), primers are trimmed, chimeras are removed and sequences clustered with USEARCH (Edgar RC. 2010. Bioinformatics. 26:2460–2461), taxonomy is assigned with BLAST (Altschul SF. 1990. J Mol Biol. 215:403–410.) by reference to a nifH taxonomy database, cluster IV/V sequences are removed, and a biom table is produced. The script can produce output for taxonomy exploration with the program Krona (Ondov BD et al. 2011. BMC Bioinformatics. 12:385.), for STAMP (Parks DH et al. 2014. Bioinformatics. 30(21):3123-4.) in order to examine the relative abundance of taxa, for QIIME (Caporaso JG et al. 2010. Nat Methods 7:335–336) to produce alpha and beta diversity metrics which may be visualized with Emperor (Vázquez-Baeza Y et al. 2013. Gigascience. 2:16.), and for oligotyping analysis by Minimum Entropy Decomposition (Eren M et al. 2014. ISME J 9:968–979.) which produces taxonomically-labeled oligotype networks explorable with the network visualization tool Gephi (Bastian M et al. 2009. International AAAI Conference on Weblogs and Social Media.).
+The script uses threading to parallelize the processing of sequences and thereby reduce run time. This wrapper pipeline performs the following steps in order (including the optional steps):
+1. Sequences are merged with PEAR (Zhang J et al 2014. Bioinformatics 30:614–620)
+2. Primers are trimmed using PrinSeq
+3. Chimeras are removed and sequences clustered with USEARCH (Edgar RC. 2010. Bioinformatics. 26:2460–2461)
+4. Taxonomy is assigned with BLAST (Altschul SF. 1990. J Mol Biol. 215:403–410.) by reference to a nifH taxonomy database, cluster IV/V sequences are removed,
+5. Numerous outputs for taxonomy exploration are produced including a BIOM text table (for QIIME; Caporaso JG et al. 2010. Nat Methods 7:335–336), Krona (Ondov BD et al. 2011. BMC Bioinformatics. 12:385.), STAMP (Parks DH et al. 2014. Bioinformatics. 30:3123-4.) and
+6. An optional oligotyping analysis by Minimum Entropy Decomposition (Eren M et al. 2014. ISME J 9:968–979.) which produces taxonomically-labeled oligotype networks explorable with the network visualization tool Gephi (Bastian M et al. 2009. International AAAI Conference on Weblogs and Social Media.).
 
-The code has been lightly commented and going forward, if time permits, I will add more comments to help anyone read, modify or update the script.
+The taxonomy assignment step relies on similarity between the input clustered reads to the reference database.  Taxonomy of the reference database is transferred over to the clustered read based on a set of decision rules as shown in the figure below:
+
+![Decision Chart Used in TaxADiva](/DecisionChart.png?raw=true "TaxADiva's decision chart for assigned OTU names and numbers")
+
+The percent identity parameters described in the chart above are derived by emperically comparing all the sequences in the database and estimating the cutoffs that maximizes the number of correctly placed sequence within the same species, genus and family.  These parameters can be changed from inside the script.  These are declared as follows:
+
+```
+# These are emperically calculated threshold values
+	my $family  = 75;
+	my $genus   = 88.1;
+	my $species = 91.9;
+```
+
+The code has been lightly commented and going forward, if time permits, I will add more comments to help anyone read, modify or update the script.  This README will be continuously updated, as required, going forward.
 
 Citations: Gaby JC, et al.  A pipeline for analysis of nifH amplicons.  Manuscript in preparation.
 
 ## Dependencies
 
-The script is written specifically for Linux operating system and has been tested on Ubuntu 14.04 and RedHat systems.  Certain components of the script may throw error on other *nix systems.  The script utilizes basic Linux commands and thus may work on Cygwin but not on MSDOS.
+The script is written specifically for Linux operating system and has been tested on Ubuntu 14.04 and RedHat systems.  Certain components of the script may throw error on other *nix systems.  The script utilizes basic Linux commands and thus may work on Cygwin but not on MS-DOS.  All the required dependencies will hopefully not require further dependency installation and may simply require placement of respective binaries in a folder in the $PATH variable in the best case scenario.
 
-- Perl
-- nifH sequence database (Comes with the script, files: fDb.fasta and fTax.db.tsv; source: http://www.css.cornell.edu/faculty/buckley/nifh.htm
+- Perl (comes installed with Linux)
+- nifH sequence database (*Comes with the script*, files: fDb.fasta and fTax.db.tsv; source: http://www.css.cornell.edu/faculty/buckley/nifh.htm ; 
 Gaby JC, Buckley DH. 2013. A comprehensive aligned nifH gene database: a multipurpose tool for studies of nitrogen-fixing bacteria. Database. doi: 10.1093/database/bau001)
 - PRINSEQ: http://prinseq.sourceforge.net/
+  - Installation of the script simply requires placing the Perl script in a folder that is in the $PATH.  See below.
 - Pear: http://sco.h-its.org/exelixis/web/software/pear/  
 Zhang J, Kobert K, Flouri T, Stamatakis A. 2014. PEAR: a fast and accurate Illumina Paired-End reAd mergeR. Bioinformatics 30:614–620
+  - Please note that the PEAR binaries may be on the bottom-right of the page!  Download the binaries, extract them and place them in a folder that is in the $PATH variable.  See below.
 - USEARCH: http://www.drive5.com/usearch/download.html
 Edgar RC. 2010. Search and clustering orders of magnitude faster than BLAST. Bioinformatics 26:2460–2461
+  - This requires registration and the link will come to your email.  The binary can then be placed in a folder that is in the $PATH variable.  See below.
 - BLAST+: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 Altschul SF, Gish W, Miller W, Myers EW, Lipman DJ. 1990. Basic local alignment search tool. J Mol Biol 215:403–410.
+  - Binaries for the relevant system can directly be obtained and placed in a folder that is in the $PATH variable.  See below.
 - KRONA: https://github.com/marbl/Krona/wiki
 Ondov BD, Bergman NH, Phillippy AM. 2011. Interactive metagenomic visualization in a Web browser. BMC Bioinformatics. 12:385. doi: 10.1186/1471-2105-12-385.
+  - Download the archive, unzip it and place them in a folder that is in the $PATH variable.  See below.
+
+For users not familiar with the $PATH variable, please follow the following steps to create your own bin directory and add it to your $PATH variable:
+```
+mkdir ~/bin
+echo "export PATH=\$PATH:~/bin" >> ~/.bashrc
+source ~/.bashrc
+```
+This will create a bin directory in your home folder (~) and add this folder to your PATH variable.  All the local installations can be placed inside this folder.
+
 
 ## Installations
 Download the dependency, install them and place it in a folder that is in your PATH.  The script can then be run simply as ./taxadiva.pl
