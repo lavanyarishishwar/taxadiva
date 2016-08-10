@@ -2,9 +2,9 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  :  3rd Aug 2016
-# Version        : 0.10.4
-my $version = "0.10.4";
+# Last Modified  :  5th Aug 2016
+# Version        : 0.10.5
+my $version = "0.10.5";
 #
 #############################################################
 use strict;
@@ -144,7 +144,7 @@ if(-e $outDir && -d $outDir){
 `mkdir -p $outDir`;
 
 
-if (! -e $medMetadataFile){
+if ($oligotyping > 0 && ! -e $medMetadataFile){
 	print STDERR "\nERROR (Line ".__LINE__."): Please make sure that MED metadata (option --med-metadata) file exist or the location provided is correct!\n";
 	print STDERR "$usage\n";
 	exit;
@@ -294,7 +294,14 @@ sub readTaxonomy{
 		$genus = "unclassified" unless(acceptable($genus));
 		$species = "unclassified" unless(acceptable($species));
 		
-		$spfFormat{$accn} = "k__".$kingdom."\tp__".$phylum."\tc__".$class."\to__".$order."\tf__".$family."\tg__".$genus."\ts__".$species;
+		$spfFormat{$accn}{"full"} = "k__".$kingdom."\tp__".$phylum."\tc__".$class."\to__".$order."\tf__".$family."\tg__".$genus."\ts__".$species;
+		$spfFormat{$accn}{"kingdom"} = "k__".$kingdom;
+		$spfFormat{$accn}{"phylum"} = "p__".$phylum;
+		$spfFormat{$accn}{"class"} = "c__".$class;
+		$spfFormat{$accn}{"order"} = "o__".$order;
+		$spfFormat{$accn}{"family"} = "f__".$family;
+		$spfFormat{$accn}{"genus"} = "g__".$genus;
+		$spfFormat{$accn}{"species"} = "s__".$species;
 	}
 	close TAX;
 	print STDERR "Done\n";
@@ -594,38 +601,57 @@ sub taxAssignBatch{
 	my $genus   = 88.1;
 	my $species = 91.9;
 	
+	my $totalSeqs = `grep -c '>' $outDir/$out.nochim.fa`;
+	chomp $totalSeqs;
+	
 	# These variables will store the processed results
 	my %assignments; # stores mapping of centroids to taxonomy
 	
 	my @blast = split(/\n/, $blOut);
+	my $seqsProcessed = 0;
 	
 	for(my $i=0; $i < @blast; $i++){
 		my ($q, $s, $e, $p) = split(/\t/, $blast[$i]);
+		
+		$q =~ s/;size.*$//;
+		if($s =~ /cluster_IV/){
+			$assignments{$q}{"class"} = "cluster_IV";
+			next;
+		}
+		my ($accn, undef) = split(/;/, $s);
+		
+		$assignments{$q}{"stamp"} = join("\t", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
+		$assignments{$q}{"qiime"} = join("; ", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
+		$seqsProcessed++;
+		
 		if($p > $family){
-			
-			$q =~ s/;size.*$//;
-			
-			if($s =~ /cluster_IV/){
-				$assignments{$q}{"class"} = "cluster_IV";
-				next;
-			}
-			
-			my ($accn, undef) = split(/;/, $s);
 			
 			$assignments{$q}{"class"} = $class{$accn};
 			$assignments{$q}{"accn"} = $accn;
+			$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"family"};
+			$assignments{$q}{"qiime"} .= "; ".$spfFormat{$accn}{"family"};
 			
 			if($p > $species){
 				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $tax{$accn});
 				$assignments{$q}{"assign"} = $tax{$accn};
 				#$assignments{$q}{"alpha"} = $tax2Species{$accn};
+				$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\t".$spfFormat{$accn}{"species"};
+				$assignments{$q}{"qiime"} .= "; ".$spfFormat{$accn}{"genus"}."; ".$spfFormat{$accn}{"species"};
+				
 			} elsif($p > $genus) {
 				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $genus{$accn});
 				$assignments{$q}{"assign"} = $genus{$accn};
+				$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\tUnclassified";
+				$assignments{$q}{"qiime"} .= ";".$spfFormat{$accn}{"genus"}."; s__";
 			} else {
 				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $family{$accn});
 				$assignments{$q}{"assign"} = $family{$accn};
+				$assignments{$q}{"stamp"} .= "\tUnclassified\tUnclassified";
+				$assignments{$q}{"qiime"} .= "; g__; s__";
 			}
+		} else {
+			$assignments{$q}{"stamp"} .= "\tUnclassified\tUnclassified\tUnclassified";
+			$assignments{$q}{"qiime"} .= "; f__; g__; s__";
 		}
 	}
 	
@@ -641,6 +667,7 @@ sub taxAssignBatch{
 	my %classesSeen;
 	
 	# This variable stores the count for creating a biom file
+	# bins are the samples
 	my %biom;
 	my %biomBins;
 	
@@ -653,6 +680,7 @@ sub taxAssignBatch{
 		$otu2Keep{$_} = 1;
 	}
 	
+	my $unassignedSeqs = 0;
 	open FILE, "<$outDir/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outDir/$out.up: $!\n";
 	while(<FILE>){
 		chomp $_;
@@ -741,22 +769,26 @@ sub taxAssignBatch{
 	}
 	print BIOM "\ttaxonomy\n";
 	for(my $i = 0; $i < @otus; $i++){
-		next if(! defined $assignments{$otus[$i]}{"accn"});
 		
 		print BIOM "denovo".($i+1);
 		foreach my $bin (@biomBins){
 			$biom{$otus[$i]}{$bin} //= 0;
 			print BIOM "\t$biom{$otus[$i]}{$bin}";
 		}
-		#The following code would've printed the taxonomy ID
-		#print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
-		#The new one will print the taxonomy hierarchy
-		if(defined $spfFormat{$assignments{$otus[$i]}{"accn"}}){
-			my $name = $spfFormat{$assignments{$otus[$i]}{"accn"}};
-			$name =~ s/\t/;/g;
-			print BIOM "\t$name";
+		if(! defined $assignments{$otus[$i]}{"qiime"}){
+			print BIOM "\tk__; p__; c__; o__; f__; g__; s__\n";
+		} else {
+			#The following code would've printed the taxonomy ID
+			#print BIOM "\t".$taxid{$assignments{$otus[$i]}{"accn"}} if (defined $assignments{$otus[$i]}{"accn"});
+			#The new one will print the taxonomy hierarchy
+			# if(defined $spfFormat{$assignments{$otus[$i]}{"accn"}}{"full"}){
+				# my $name = $spfFormat{$assignments{$otus[$i]}{"accn"}}{"full"};
+				# $name =~ s/\t/;/g;
+				# print BIOM "\t$name";
+			# }
+			# print BIOM "\n";
+			print BIOM "\t".$assignments{$otus[$i]}{"qiime"}."\n";
 		}
-		print BIOM "\n";
 	}
 	close BIOM;
 	print STDERR "\n\tCreated $out.otu_table.txt";
@@ -771,8 +803,11 @@ sub taxAssignBatch{
 	}
 	print SPF "\n";
 	for(my $i = 0; $i < @otus; $i++){
-		next if(!defined $assignments{$otus[$i]}{"accn"});
-		print SPF $spfFormat{$assignments{$otus[$i]}{"accn"}};
+		if(! defined $assignments{$otus[$i]}{"stamp"}){
+			print SPF "Unclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified";
+		} else {
+			print SPF $assignments{$otus[$i]}{"stamp"};
+		}
 		foreach my $bin (@biomBins){
 			$biom{$otus[$i]}{$bin} //= 0;
 			print SPF "\t$biom{$otus[$i]}{$bin}";
