@@ -9,7 +9,7 @@ As of January 2017, the script is under development and not fully tested.  Users
 The script uses threading to parallelize the processing of sequences and thereby reduce run time. This wrapper pipeline performs the following steps in order (including the optional steps):
 1. Sequences are merged with PEAR (Zhang J et al 2014. Bioinformatics 30:614–620)
 2. Primers are trimmed using PrinSeq
-3. Chimeras are removed and sequences clustered with USEARCH (Edgar RC. 2010. Bioinformatics. 26:2460–2461)
+3. Chimeras are removed and sequences clustered with VSEARCH (Rognes T et al. 2016. PeerJ. 4:e2584)
 4. Taxonomy is assigned with BLAST (Altschul SF. 1990. J Mol Biol. 215:403–410.) by reference to a nifH taxonomy database, cluster IV/V sequences are removed,
 5. Numerous outputs for taxonomy exploration are produced including a BIOM text table (for QIIME; Caporaso JG et al. 2010. Nat Methods 7:335–336), Krona (Ondov BD et al. 2011. BMC Bioinformatics. 12:385.), STAMP (Parks DH et al. 2014. Bioinformatics. 30:3123-4.) and
 6. An optional oligotyping analysis by Minimum Entropy Decomposition (Eren M et al. 2014. ISME J 9:968–979.) which produces taxonomically-labeled oligotype networks explorable with the network visualization tool Gephi (Bastian M et al. 2009. International AAAI Conference on Weblogs and Social Media.).
@@ -43,9 +43,9 @@ Gaby JC, Buckley DH. 2013. A comprehensive aligned nifH gene database: a multipu
 - Pear: http://sco.h-its.org/exelixis/web/software/pear/  
 Zhang J, Kobert K, Flouri T, Stamatakis A. 2014. PEAR: a fast and accurate Illumina Paired-End reAd mergeR. Bioinformatics 30:614–620
   - Please note that the PEAR binaries may be on the bottom-right of the page!  Download the binaries, extract them and place them in a folder that is in the $PATH variable.  See below.
-- USEARCH: http://www.drive5.com/usearch/download.html
-Edgar RC. 2010. Search and clustering orders of magnitude faster than BLAST. Bioinformatics 26:2460–2461
-  - This requires registration and the link will come to your email.  The binary can then be placed in a folder that is in the $PATH variable.  See below.
+- VSEARCH: https://github.com/torognes/vsearch
+Rognes T, Flouri T, Nichols B, Quince C, Mahé F. 2016. VSEARCH: a versatile open source tool for metagenomics. PeerJ 4:e2584.
+  - The binary can then be placed in a folder that is in the $PATH variable.
 - BLAST+: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 Altschul SF, Gish W, Miller W, Myers EW, Lipman DJ. 1990. Basic local alignment search tool. J Mol Biol 215:403–410.
   - Binaries for the relevant system can directly be obtained and placed in a folder that is in the $PATH variable.  See below.
@@ -65,41 +65,51 @@ This will create a bin directory in your home folder (~) and add this folder to 
 ## Installations
 Download the dependency, install them and place it in a folder that is in your PATH.  The script can then be run simply as ./taxadiva.pl
 
-In case of an issue with installation, please contact Lava lavanya.rishishwar@gatech.edu
+In case of an issue with installation, please contact Lava lavanyarishishwar@gmail.com
 
 ## General Usage
 The argument and the type of argument expected are defined in the help below.
 ```
 taxadiva.pl [-1 <forward read file>] [-2 <reverse read file>]
-            [-o <STRING. output prefix to store results. Default: input f>]
-            [-d <STRING. Database. Default: db.fasta>] [-t <STRING. Taxonomy file. Default: tax.tsv>]
-            [-p <INT. Primer length to be trimmed. Default: no trimming>]
-            [-r <INT. Primer length to be trimmed from the RIGHT. Default: no trimming>]
-            [-l <INT. Primer length to be trimmed from the LEFT. Default: no trimming>]
-            [-k <FLAG. If specified, the trimmed primers will be retained as separate files.  Default: Don't retain trimmed primers.>]
-            [-y <FLAG. Performs MED analysis>]
-            [-j <INT. Number of threads. Default: 1>]
-            [-g <INT. Depth cutoff for considering file. Default: 5000>]
-            [--pear <STRING. PEAR paramaters in double quotes.  Default: "-v 50 -m 450 -n 350 -p 1.0 -j <threads>">]
-            [--med <STRING. Oligotyping paramaters in double quotes.  Default: "">]
-            [-u <STRING. USEARCH program path. Default: usearch>]
-            [-h <FLAG. Prints this help>]
+           [-o <STRING. output dir and PREFIX to store results. All results will be stored as PREFIX inside the directory PREFIX. Default: input filename>]
+           [-d <STRING. Database. Default: db.fasta>] [-t <STRING. Taxonomy file. Default: tax.tsv>]
+           [-p <INT. Primer length to be trimmed. Default: no trimming>]
+           [-r <INT. Primer length to be trimmed from the RIGHT. Default: no trimming>]
+           [-l <INT. Primer length to be trimmed from the LEFT. Default: no trimming>]
+           [-k <FLAG. If specified, the trimmed primers will be retained as separate files.  Default: Don't retain trimmed primers.>]
+           [-y <FLAG. Performs MED analysis>]
+           [-j <INT. Number of threads. Default: 1>]
+           [-g <INT. Depth cutoff for considering file. Default: 5000>]
+           [-u <STRING. VSEARCH program path. Default: VSEARCH>]
+           [--pear <STRING. PEAR paramaters in double quotes.  Default: "-v 50 -m 450 -n 350 -p 1.0 -j <threads>". Validity of the arguments not checked.>]
+           [--med <STRING. Oligotyping paramaters in double quotes.  Default: "". Validity of the arguments not checked.>]
+           [--med-metadata <STRING. MED metadata file to be used for the decompose command.  Specified by the -E option in the decompose command.  Default: decompose_map3.tab.>]
+           [--keepc4 <FLAG. TaxADivA will not filter out cluster IV sequences>]
+                   
+           [-h <FLAG. Prints this help>]
+           [-v <FLAG.  Prints the current version of the script.>]
+           [--version <FLAG.  Prints the current version of the script.>]
 ```
 ```
 taxadiva.pl [-s <file with set of forward and reverse files>]
-            [-o <STRING. output prefix to store results. Default: input f>]
-            [-d <STRING. Database. Default: db.fasta>] [-t <STRING. Taxonomy file. Default: tax.tsv>]
-            [-p <INT. Primer length to be trimmed. Default: no trimming>]
-            [-r <INT. Primer length to be trimmed from the RIGHT. Default: no trimming>]
-            [-l <INT. Primer length to be trimmed from the LEFT. Default: no trimming>]
-            [-k <FLAG. If specified, the trimmed primers will be retained as separate files.  Default: Don't retain trimmed primers.>]
-            [-y <FLAG. Performs MED analysis>]
-            [-j <INT. Number of threads. Default: 1>]
-            [-g <INT. Depth cutoff for considering file. Default: 5000>]
-            [--pear <STRING. PEAR paramaters in double quotes.  Default: "-v 50 -m 450 -n 350 -p 1.0 -j <threads>">]
-            [--med <STRING. Oligotyping paramaters in double quotes.  Default: "">]
-            [-u <STRING. USEARCH program path. Default: usearch>]
-            [-h <FLAG. Prints this help>]
+           [-o <STRING. output dir and PREFIX to store results. All results will be stored as PREFIX inside the directory PREFIX. Default: input filename>]
+           [-d <STRING. Database. Default: db.fasta>] [-t <STRING. Taxonomy file. Default: tax.tsv>]
+           [-p <INT. Primer length to be trimmed. Default: no trimming>]
+           [-r <INT. Primer length to be trimmed from the RIGHT. Default: no trimming>]
+           [-l <INT. Primer length to be trimmed from the LEFT. Default: no trimming>]
+           [-k <FLAG. If specified, the trimmed primers will be retained as separate files.  Default: Don't retain trimmed primers.>]
+           [-y <FLAG. Performs MED analysis>]
+           [-j <INT. Number of threads. Default: 1>]
+           [-g <INT. Depth cutoff for considering file. Default: 5000>]
+           [-u <STRING. VSEARCH program path. Default: VSEARCH>]
+           [--pear <STRING. PEAR paramaters in double quotes.  Default: "-v 50 -m 450 -n 350 -p 1.0 -j <threads>". Validity of the arguments not checked.>]
+           [--med <STRING. Oligotyping paramaters in double quotes.  Default: "". Validity of the arguments not checked.>]
+           [--med-metadata <STRING. MED metadata file to be used for the decompose command.  Specified by the -E option in the decompose command.  Default: decompose_map3.tab.>]
+           [--keepc4 <FLAG. TaxADivA will not filter out cluster IV sequences>]
+                   
+           [-h <FLAG. Prints this help>]
+           [-v <FLAG.  Prints the current version of the script.>]
+           [--version <FLAG.  Prints the current version of the script.>] 
 ```
 
 Example usage: 
@@ -136,5 +146,6 @@ By default, the script assumes that it can run 10 threads which may not be possi
 
 
 ## Version Updates
+- 0.11 - Stable version.  Alpha tested with following procedure: sequence quality control (prinseq), read merging (PEAR), read clustering (VSEARCH), taxonomy assignment (BLAST + processing), KRONA plot generation, oligotyping (MED; optional).  MED is fully functional.  Cluster IV filtering is now optional.  Instead of creating multiple output files, creates an output directory and places all the output files in it.
 - 0.10 - Stable version.  Alpha tested with following procedure: sequence quality control (prinseq), read merging (PEAR), read clustering (USEARCH), taxonomy assignment (BLAST + processing), KRONA plot generation, oligotyping (MED; optional).  MED is fully functional.  Instead of creating multiple output files, creates an output directory and places all the output files in it.
 - 0.9 - Last stable version.  Alpha tested the following procedure: sequence quality control (prinseq), read merging (PEAR), read clustering (USEARCH), taxonomy assignment (BLAST + processing), KRONA plot generation, oligotyping (MED; optional).
