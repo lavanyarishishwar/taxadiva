@@ -3,8 +3,8 @@
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
 # Last Modified  : 19th Jan 2017
-# Version        : 0.11.1
-my $version = "0.11.1";
+# Version        : 0.11.2
+my $version = "0.11.2";
 #
 #############################################################
 use strict;
@@ -24,10 +24,12 @@ my $baseUsage = "           [-o <STRING. output dir and PREFIX to store results.
            [-y <FLAG. Performs MED analysis>]
            [-j <INT. Number of threads. Default: 1>]
            [-g <INT. Depth cutoff for considering file. Default: 5000>]
+           [-u <STRING. VSEARCH program path. Default: VSEARCH>]
            [--pear <STRING. PEAR paramaters in double quotes.  Default: \"-v 50 -m 450 -n 350 -p 1.0 -j <threads>\". Validity of the arguments not checked.>]
            [--med <STRING. Oligotyping paramaters in double quotes.  Default: \"\". Validity of the arguments not checked.>]
            [--med-metadata <STRING. MED metadata file to be used for the decompose command.  Specified by the -E option in the decompose command.  Default: decompose_map3.tab.>]
-           [-u <STRING. USEARCH program path. Default: usearch>]
+           [--keepc4 <FLAG. TaxADivA will not filter out cluster IV sequences>]
+		   
            [-h <FLAG. Prints this help>]
            [-v <FLAG.  Prints the current version of the script.>]
            [--version <FLAG.  Prints the current version of the script.>]";
@@ -48,7 +50,7 @@ my $pLen;
 my $prLen;
 my $plLen;
 my $keepTrimmedPrimers = 0;
-my $usearchProgram = "vsearch";
+my $vsearchProgram = "vsearch";
 my $pearParameters = "-v 50 -m 450 -n 350 -p 1.0 -j $threads";
 my $medParameters = "";
 my $goodDepth = 5000;
@@ -56,6 +58,7 @@ my $oligotyping = 0;
 my $medMetadataFile = "decompose_map3.tab";
 my $maxHsps = "";
 my $versionPrint = 0;
+my $cluster4filter = 0;
 my %tax; my %tax2Species; my %family; my %genus; my %class; my %uniqueClass; my %taxid; my %spfFormat;
 #############################################################
 
@@ -66,7 +69,7 @@ my $args  = GetOptions ("1=s"     => \$r1,
                         "b=s"     => \$b,
                         "h"       => \$help,
                         "d=s"     => \$db,
-                        "u=s"     => \$usearchProgram,
+                        "u=s"     => \$vsearchProgram,
                         "t=s"     => \$taxFile,
                         "j=i"     => \$threads,
                         "p=i"     => \$pLen,
@@ -78,6 +81,7 @@ my $args  = GetOptions ("1=s"     => \$r1,
                         "o=s"     => \$outDir,
                         "pear=s"  => \$pearParameters,
                         "med=s"   => \$medParameters,
+                        "keepc4+"   => \$cluster4filter,
                         "med-metadata=s"   => \$medMetadataFile,
                         "version+"   => \$versionPrint);
                         
@@ -186,9 +190,9 @@ die "\nERROR (Line ".__LINE__."): BLASTN not found! Please make sure BLASTN is i
 #}
 $programPath = "";
 
-# USEARCH
-$programPath = `which $usearchProgram`;
-die "\nERROR (Line ".__LINE__."): USEARCH not found! Please make sure USEARCH is installed and is in the \$PATH variable.\nTo install USEARCH, download the binaries from http://www.drive5.com/usearch/download.html and place it in your \$PATH\n" if(length($programPath) == 0);
+# VSEARCH
+$programPath = `which $vsearchProgram`;
+die "\nERROR (Line ".__LINE__."): VSEARCH not found! Please make sure VSEARCH is installed and is in the \$PATH variable.\nTo install VSEARCH, download the source from https://github.com/torognes/vsearch and place it in your \$PATH\n" if(length($programPath) == 0);
 $programPath = "";
 
 # KRONA
@@ -419,14 +423,14 @@ sub taxAssign{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
-	`$usearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 
 	my $total = 0;
@@ -486,7 +490,7 @@ sub taxAssign{
 			my $size = $otuSizes{$q};
 			
 			# Throw away paralogs and account for that change in the total
-			if($s =~ /cluster_IV/){
+			if($cluster4filter == 0 && $s =~ /cluster_IV/){
 				next;
 			}
 			#$total += $size;
@@ -568,14 +572,14 @@ sub taxAssignBatch{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
-	`$usearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
@@ -601,7 +605,7 @@ sub taxAssignBatch{
 		
 	
 		$q =~ s/;size.*$//;
-		if($s =~ /cluster_IV/){
+		if($cluster4filter == 0 && $s =~ /cluster_IV/){
 			$assignments{$q}{"class"} = "cluster_IV";
 			next;
 		}
@@ -689,7 +693,7 @@ sub taxAssignBatch{
 		$otu =~ s/;size=.*$//;
 		
 		if(defined $assignments{$otu}{"class"}){
-			next if($assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should never be true
+			next if($cluster4filter == 0 && $assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should never be true
 			
 			if(defined $assignments{$otu}{"class"}){
 				$classCounts{$bin}{$assignments{$otu}{"class"}} += $size;
@@ -815,7 +819,7 @@ sub taxAssignBatch{
 			}
 		}
 	}
-	foreach my $tag (sort keys %spfTag){
+	foreach my $tag (keys %spfTag){
 		print SPF $tag;
 		foreach my $bin (@biomBins){
 			print SPF "\t$spfBinCounts{$tag}{$bin}";
