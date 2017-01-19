@@ -4,7 +4,7 @@ TaxADivA - TAXonomy Assignment and DIVersity Assessment
 
 TaxADivA is a wrapper script written in Perl to facilitate the analysis of nifH amplicon sequences.
 
-As of July 2016, the script is under development and not fully tested.  Users are advised to use the script with caution.
+As of January 2017, the script is under development and not fully tested.  Users are advised to use the script with caution.
 
 The script uses threading to parallelize the processing of sequences and thereby reduce run time. This wrapper pipeline performs the following steps in order (including the optional steps):
 1. Sequences are merged with PEAR (Zhang J et al 2014. Bioinformatics 30:614–620)
