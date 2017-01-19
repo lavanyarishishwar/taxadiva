@@ -2,9 +2,9 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  :  5th Aug 2016
-# Version        : 0.10.5
-my $version = "0.10.5";
+# Last Modified  : 19th Jan 2017
+# Version        : 0.11.1
+my $version = "0.11.1";
 #
 #############################################################
 use strict;
@@ -48,7 +48,7 @@ my $pLen;
 my $prLen;
 my $plLen;
 my $keepTrimmedPrimers = 0;
-my $usearchProgram = "usearch";
+my $usearchProgram = "vsearch";
 my $pearParameters = "-v 50 -m 450 -n 350 -p 1.0 -j $threads";
 my $medParameters = "";
 my $goodDepth = 5000;
@@ -372,7 +372,7 @@ sub preprocess{
 #
 #	Output: Single merged file name
 #
-#	This will generate $out$$.read.temp
+#	This will generate $out.read.temp
 ###########################################
 sub mergeReads{
 	my ($prefix, @files) = @_;
@@ -419,21 +419,16 @@ sub taxAssign{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp -fastaout $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_otus $outDir/$out.reads.derep -otus $outDir/$out.otus.fa -uparseout $outDir/$out.up -relabel OTU -minsize 2 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$usearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
 	`$usearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
-	# Old paradigm
-	#`usearch -uchime_ref $out.reads.temp -db $db -strand plus -minh 0.28 -nonchimeras $out.reads.fasta 1>> $out.log 2>> $out.log`;
-	#`usearch -cluster_fast $out.reads.fasta -id 0.9 -centroids $out.cent.fa -uc $out.clusters.tsv -strand both -sizeout >> $out.log 2>> $out.log`;
-	
-	# Get the count of total number of sequences processed from the centroid file
-	
+
 	my $total = 0;
 	my %otuSizes;
 	my %otu2Keep;
@@ -448,12 +443,15 @@ sub taxAssign{
 	open FILE, "<$outDir/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outDir/$out.clusters.tsv: $!\n";
 	while(<FILE>){
 		chomp $_;
-		my ($query, $type, @vars) = split(/\t/, $_);
-		my $otu = pop(@vars);
+		my ($type, @vals) = split(/\t/, $_);
+		next if($type ne "S");
+		
+		pop(@vals);
+		my $otu = pop(@vals);
 		
 		next if(! defined $otu2Keep{$otu}); #Throw out chimeric OTUs
 		
-		my $size = $query;
+		my $size = $otu;
 		$size =~ s/.*;size=//;
 		$size =~ s/;\s*$//;
 		
@@ -570,31 +568,19 @@ sub taxAssignBatch{
 	
 	# Chimera removal and clustering
 	print STDERR "[$out][Step 2]\tDereplicating sequences...";
-	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp -fastaout $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$usearchProgram -derep_fulllength $outDir/$out.reads.temp --output $outDir/$out.reads.derep -sizeout -threads $threads 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$usearchProgram -cluster_otus $outDir/$out.reads.derep -otus $outDir/$out.otus.fa -uparseout $outDir/$out.up -relabel OTU -minsize 2 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$usearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
 	`$usearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
-	
-	# Old paradigm
-	#`usearch -uchime_ref $out.reads.temp -db $db -strand plus -minh 0.28 -nonchimeras $out.reads.fasta 1>> $out.log 2>> $out.log`;
-	#`usearch -cluster_fast $out.reads.fasta -id 0.9 -centroids $out.cent.fa -uc $out.clusters.tsv -strand both -sizeout >> $out.log 2>> $out.log`;
 	
 	# Perform the BLAST search
 	print STDERR "Done\n[$out][Step 4]\tLooking for homologs...";
 	my $blOut = `blastn -query $outDir/$out.nochim.fa -db $db -outfmt "6 qseqid sseqid evalue pident" -evalue 0.01 -max_target_seqs 1 -max_hsps 1 -num_threads $threads | tee $outDir/$out.blast.tsv`;
 	print STDERR "Done\n[$out][Step 5]\tProcessing results...";
-	
-	# Old Paradigm
-	#print STDERR "[$out][Step 2]\tRemoving chimeras...";
-	#`usearch -uchime_ref $out.reads.temp -db $db -strand plus -minh 0.28 -nonchimeras $out.reads.fasta 1> $out.log 2>> $out.log`;
-	#`rm $out.reads.temp`;
-	#print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	#`usearch -cluster_fast $out.reads.fasta -id 0.9 -centroids $out.cent.fa -uc $out.clusters.tsv -strand both -sizeout > $out.log 2>> $out.log`;
-	
 	
 	# These are emperically calculated threshold values
 	my $family  = 75;
@@ -613,6 +599,7 @@ sub taxAssignBatch{
 	for(my $i=0; $i < @blast; $i++){
 		my ($q, $s, $e, $p) = split(/\t/, $blast[$i]);
 		
+	
 		$q =~ s/;size.*$//;
 		if($s =~ /cluster_IV/){
 			$assignments{$q}{"class"} = "cluster_IV";
@@ -625,7 +612,7 @@ sub taxAssignBatch{
 		$seqsProcessed++;
 		
 		if($p > $family){
-			
+			#print "$q assigned $class{$accn}\n";
 			$assignments{$q}{"class"} = $class{$accn};
 			$assignments{$q}{"accn"} = $accn;
 			$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"family"};
@@ -653,6 +640,8 @@ sub taxAssignBatch{
 			$assignments{$q}{"stamp"} .= "\tUnclassified\tUnclassified\tUnclassified";
 			$assignments{$q}{"qiime"} .= "; f__; g__; s__";
 		}
+		
+		# print "Looking at $q which matches $s at $p -> assigned to ".$assignments{$q}{"qiime"}."\n";
 	}
 	
 	# These variables will store the processed results
@@ -684,15 +673,20 @@ sub taxAssignBatch{
 	open FILE, "<$outDir/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outDir/$out.up: $!\n";
 	while(<FILE>){
 		chomp $_;
-		my ($query, $type, @vars) = split(/\t/, $_);
-		my $otu = pop(@vars);
+		my ($type, @vals) = split(/\t/, $_);
+		next if($type ne "S");
+		
+		pop(@vals);
+		my $otu = pop(@vals);
 		
 		next if(! defined $otu2Keep{$otu}); #Throw out chimeric OTUs
 		
-		my ($bin, undef) = split(/:/, $query);
-		my $size = $query;
+		my ($bin, undef) = split(/:/, $otu);
+		my $size = $otu;
 		$size =~ s/.*;size=//;
 		$size =~ s/;\s*$//;
+		
+		$otu =~ s/;size=.*$//;
 		
 		if(defined $assignments{$otu}{"class"}){
 			next if($assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should never be true
@@ -703,6 +697,7 @@ sub taxAssignBatch{
 			}
 			
 			$assigned{$bin} += $size;
+			
 		} else {
 			$assignments{$otu}{"assign"} = "OTU$otuNum";
 			$otuNum++;
@@ -751,7 +746,7 @@ sub taxAssignBatch{
 		}
 		print KRONA ($total{$bin}-$assigned{$bin})."\tUnassigned OTU\n";
 		close KRONA;
-		`ktImportText -n nifH $bin.krona.txt -o $bin.krona.html`;
+		`ktImportText -n nifH $outDir/$bin.krona.txt -o $outDir/$bin.krona.html`;
 	}
 	print STDERR "\n\tCreated Krona files (Total files = ".(scalar keys %clusterCount).")";
 	
@@ -802,18 +797,36 @@ sub taxAssignBatch{
 		print SPF "\t$_";
 	}
 	print SPF "\n";
+	my %unclass;
+	my $unclassTag = "";
+	my %spfTag;
+	my %spfBinCounts;
 	for(my $i = 0; $i < @otus; $i++){
 		if(! defined $assignments{$otus[$i]}{"stamp"}){
-			print SPF "Unclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified";
+			foreach my $bin (@biomBins){
+				$biom{$otus[$i]}{$bin} //= 0;
+				$unclass{$bin} += $biom{$otus[$i]}{$bin};
+			}
 		} else {
-			print SPF $assignments{$otus[$i]}{"stamp"};
+			$spfTag{$assignments{$otus[$i]}{"stamp"}} = 1;
+			foreach my $bin (@biomBins){
+				$biom{$otus[$i]}{$bin} //= 0;
+				$spfBinCounts{$assignments{$otus[$i]}{"stamp"}}{$bin} += $biom{$otus[$i]}{$bin};
+			}
 		}
+	}
+	foreach my $tag (sort keys %spfTag){
+		print SPF $tag;
 		foreach my $bin (@biomBins){
-			$biom{$otus[$i]}{$bin} //= 0;
-			print SPF "\t$biom{$otus[$i]}{$bin}";
+			print SPF "\t$spfBinCounts{$tag}{$bin}";
 		}
 		print SPF "\n";
 	}
+	print SPF "Unclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified"; 
+	foreach my $bin (@biomBins){
+		print SPF "\t$unclass{$bin}";
+	}
+	print SPF "\n";
 	close SPF;
 	print STDERR "\n\tCreated $out.spf";
 	
