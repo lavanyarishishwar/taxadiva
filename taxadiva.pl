@@ -2,9 +2,9 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  : 19th Jan 2017
-# Version        : 0.11.2
-my $version = "0.11.2";
+# Last Modified  : 1st May 2017
+# Version        : 0.11.3
+my $version = "0.11.3";
 #
 #############################################################
 use strict;
@@ -34,6 +34,8 @@ my $baseUsage = "           [-o <STRING. output dir and PREFIX to store results.
            [-v <FLAG.  Prints the current version of the script.>]
            [--version <FLAG.  Prints the current version of the script.>]";
 my $usage = "\n=====================================\n$programHead\n=====================================\n$0  [-1 <STRING. forward read file>] [-2 <STRING. reverse read file>]\n$baseUsage\n\n$0  [-s <STRING. file with set of forward and reverse files>]\n$baseUsage \n=====================================\nExample usage: $0 -d db.fasta -t tax.db.tsv -j 18 -s list.txt -o output1 -m \"-v 50 -m 450 -n 350 -p 1.0 -j 4\"\n";
+
+my $shortUsage = "\nRun $0 -h to display the full help page.\n";
 
 #############################################################
 #	Global Variables
@@ -106,30 +108,30 @@ print STDERR "Checking for the provided arguments...";
                         
 if(! defined $l && !( defined $r1 && defined $r2)){
 	print STDERR "\nERROR (Line ".__LINE__."): list file (option -s) or forward (option -1) and reverse (option -2) reads are mandatory options.  Please specify them!\n";
-	print STDERR "$usage\n";
+	print STDERR "$shortUsage\n";
 	exit;
 }
 if(defined $l){
 	if(! -e $l){
 		print STDERR "\nERROR (Line ".__LINE__."): Please make sure that list file (option -s) exist or the location provided is correct!\n";
-		print STDERR "$usage\n";
+		print STDERR "$shortUsage\n";
 		exit;
 	}
 } else {
 	if(! -e $r1 || ! -e $r2){
 		print STDERR "\nERROR (Line ".__LINE__."): Please make sure that the forward (option -1) and reverse (option -2) reads exist or the location provided is correct!\n";
-		print STDERR "$usage\n";
+		print STDERR "$shortUsage\n";
 		exit;
 	}
 }
 if(! -e $taxFile){
 	print STDERR "\nERROR (Line ".__LINE__."): Please make sure that the taxonomy (option -t) file exist or the location provided is correct!\n";
-	print STDERR "$usage\n";
+	print STDERR "$shortUsage\n";
 	exit;
 }
 if(! -e $db){
 	print STDERR "\nERROR (Line ".__LINE__."): Please make sure that the database (option -d) file exist or the location provided is correct!\n";
-	print STDERR "$usage\n";
+	print STDERR "$shortUsage\n";
 	exit;
 }
 if( ! -e "$db.nhr" || ! -e "$db.nin" || ! -e "$db.nsq" ){
@@ -138,23 +140,24 @@ if( ! -e "$db.nhr" || ! -e "$db.nin" || ! -e "$db.nsq" ){
 
 if(length($outDir) == 0 || $outDir =~ m{[\\:*?"<>|]}){
 	print STDERR "\nERROR (Line ".__LINE__."): Invalid output prefix.  Please provide a prefix with acceptable characters (alphanumeric, _, .)\n";
-	print STDERR "$usage\n";
+	print STDERR "$shortUsage\n";
 	exit;
 }
+
+if ($oligotyping > 0 && ! -e $medMetadataFile){
+	print STDERR "\nERROR (Line ".__LINE__."): Please make sure that MED metadata (option --med-metadata) file exist or the location provided is correct!\n";
+	print STDERR "$shortUsage\n";
+	exit;
+}
+
+print STDERR "everything looks fine.\n";
+
 
 if(-e $outDir && -d $outDir){
 	print STDERR "\nWARNING: Output directory already exists! Content will be overwritten!\n";
 }
 `mkdir -p $outDir`;
 
-
-if ($oligotyping > 0 && ! -e $medMetadataFile){
-	print STDERR "\nERROR (Line ".__LINE__."): Please make sure that MED metadata (option --med-metadata) file exist or the location provided is correct!\n";
-	print STDERR "$usage\n";
-	exit;
-}
-
-print STDERR "everything looks fine.\n";
 
 #############################################################
 #	Prerequisite check
@@ -717,7 +720,7 @@ sub taxAssignBatch{
 	
 	print STDERR "Done\n[$out][Step 6]\tOutputting results to files...";
 	
-	# Class abundance files
+	# Class relative abundance files
 	open ABND, ">$outDir/$out.abundance.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outDir/$out.abundance.txt: $!\n";
 	foreach my $key (keys %classesSeen){
 		next unless(acceptable($key));
@@ -975,7 +978,7 @@ sub singleSampleAnalysis{
 	my ($out) = @_;
 	
 	print STDERR "[$out][Step 0]\tStarted task at time ".$date."\n";
-	return if(!preprocess($r1, $r2, $out, $pLen));
+	return if(!preprocess($r1, $r2, $out, $prLen, $plLen));
 	taxAssign($out, $db);
 	
 	my $end_run = time();
