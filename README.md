@@ -4,7 +4,9 @@ TaxADivA - TAXonomy Assignment and DIVersity Assessment
 
 TaxADivA is a wrapper script written in Perl to facilitate the analysis of nifH amplicon sequences.
 
-As of January 2017, the script is under development and not fully tested.  Users are advised to use the script with caution.
+This script was published as part of the paper: http://aem.asm.org/content/84/4/e01512-17.long
+(PubMed: https://www.ncbi.nlm.nih.gov/pubmed/29180374;
+PDF: http://jordan.biology.gatech.edu/pubs/Gaby-AEM-2017.pdf)
 
 The script uses threading to parallelize the processing of sequences and thereby reduce run time. This wrapper pipeline performs the following steps in order (including the optional steps):
 1. Sequences are merged with PEAR (Zhang J et al 2014. Bioinformatics 30:614–620)
@@ -29,7 +31,8 @@ The percent identity parameters described in the chart above are derived by empe
 
 The code has been lightly commented and going forward, if time permits, I will add more comments to help anyone read, modify or update the script.  This README will be continuously updated, as required, going forward.
 
-Citations: Gaby JC, et al.  A pipeline for analysis of nifH amplicons.  Manuscript in preparation.
+Citations: Gaby, J.C., Rishishwar, L., Valderrama-Aguirre, L., Green, S.J., Valderrama-Aguirre, A., Jordan, I.K., Kostka , J.E., 2017. Diazotroph community characterization via a high-throughput nifH amplicon sequencing and analysis pipeline.
+Applied and Environmental Microbiology. 84: e01512-17.
 
 ## Dependencies
 
