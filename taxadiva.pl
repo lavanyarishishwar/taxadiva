@@ -2,9 +2,9 @@
 #
 # Authors        : Lavanya Rishishwar, Chris Gaby
 # Creation Date  : 23rd Aug 2015
-# Last Modified  : 1st May 2017
-# Version        : 0.11.3
-my $version = "0.11.3";
+# Last Modified  : 26th Dec 2018
+# Version        : 0.12.1
+my $version = "0.12.1";
 #
 #############################################################
 use strict;
@@ -430,7 +430,7 @@ sub taxAssign{
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both --sizeout 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
 	`$vsearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
@@ -579,7 +579,7 @@ sub taxAssignBatch{
 	#`rm $out.reads.temp`;
 	
 	print STDERR "Done\n[$out][Step 3]\tClustering sequences...";
-	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both 1>> $outDir/$out.log 2>> $outDir/$out.log`;
+	`$vsearchProgram -cluster_fast $outDir/$out.reads.derep -centroids $outDir/$out.otus.fa -uc $outDir/$out.up -minsize 2 --id 0.9 -strand both --sizeout 1>> $outDir/$out.log 2>> $outDir/$out.log`;
 	
 	print STDERR "Done\n[$out][Step 3]\tRemoving chimeras...";
 	`$vsearchProgram -uchime_ref $outDir/$out.otus.fa -db $db -strand plus -minh 1.0 -nonchimeras $outDir/$out.nochim.fa -uchimeout $outDir/$out.uchime -uchimealns $outDir/$out.aln 1>> $outDir/$out.log 2>> $outDir/$out.log`;
@@ -603,52 +603,57 @@ sub taxAssignBatch{
 	my @blast = split(/\n/, $blOut);
 	my $seqsProcessed = 0;
 	
+	
+	## 
+	## This piece of code stores the taxonomy assignment of
+	## each centroid
+	##
 	for(my $i=0; $i < @blast; $i++){
-		my ($q, $s, $e, $p) = split(/\t/, $blast[$i]);
+		my ($centroid, $s, $e, $p) = split(/\t/, $blast[$i]);
 		
 	
-		$q =~ s/;size.*$//;
+		$centroid =~ s/;size.*$//;
 		if($cluster4filter == 0 && $s =~ /cluster_IV/){
-			$assignments{$q}{"class"} = "cluster_IV";
+			$assignments{$centroid}{"class"} = "cluster_IV";
 			next;
 		}
 		my ($accn, undef) = split(/;/, $s);
 		
-		$assignments{$q}{"stamp"} = join("\t", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
-		$assignments{$q}{"qiime"} = join("; ", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
+		$assignments{$centroid}{"stamp"} = join("\t", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
+		$assignments{$centroid}{"qiime"} = join("; ", $spfFormat{$accn}{"kingdom"}, $spfFormat{$accn}{"phylum"}, $spfFormat{$accn}{"class"}, $spfFormat{$accn}{"order"});
 		$seqsProcessed++;
 		
 		if($p > $family){
-			#print "$q assigned $class{$accn}\n";
-			$assignments{$q}{"class"} = $class{$accn};
-			$assignments{$q}{"accn"} = $accn;
-			$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"family"};
-			$assignments{$q}{"qiime"} .= "; ".$spfFormat{$accn}{"family"};
+			#print "$centroid assigned $class{$accn}\n";
+			$assignments{$centroid}{"class"} = $class{$accn};
+			$assignments{$centroid}{"accn"} = $accn;
+			$assignments{$centroid}{"stamp"} .= "\t".$spfFormat{$accn}{"family"};
+			$assignments{$centroid}{"qiime"} .= "; ".$spfFormat{$accn}{"family"};
 			
 			if($p > $species){
-				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $tax{$accn});
-				$assignments{$q}{"assign"} = $tax{$accn};
-				#$assignments{$q}{"alpha"} = $tax2Species{$accn};
-				$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\t".$spfFormat{$accn}{"species"};
-				$assignments{$q}{"qiime"} .= "; ".$spfFormat{$accn}{"genus"}."; ".$spfFormat{$accn}{"species"};
+				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $centroid! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $tax{$accn});
+				$assignments{$centroid}{"assign"} = $tax{$accn};
+				#$assignments{$centroid}{"alpha"} = $tax2Species{$accn};
+				$assignments{$centroid}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\t".$spfFormat{$accn}{"species"};
+				$assignments{$centroid}{"qiime"} .= "; ".$spfFormat{$accn}{"genus"}."; ".$spfFormat{$accn}{"species"};
 				
 			} elsif($p > $genus) {
-				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $genus{$accn});
-				$assignments{$q}{"assign"} = $genus{$accn};
-				$assignments{$q}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\tUnclassified";
-				$assignments{$q}{"qiime"} .= ";".$spfFormat{$accn}{"genus"}."; s__";
+				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $centroid! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $genus{$accn});
+				$assignments{$centroid}{"assign"} = $genus{$accn};
+				$assignments{$centroid}{"stamp"} .= "\t".$spfFormat{$accn}{"genus"}."\tUnclassified";
+				$assignments{$centroid}{"qiime"} .= ";".$spfFormat{$accn}{"genus"}."; s__";
 			} else {
-				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $q! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $family{$accn});
-				$assignments{$q}{"assign"} = $family{$accn};
-				$assignments{$q}{"stamp"} .= "\tUnclassified\tUnclassified";
-				$assignments{$q}{"qiime"} .= "; g__; s__";
+				die "\nERROR (Line ".__LINE__."): Cannot find $accn from $centroid! Do all the sequences in the database exist in the taxonomy file (or is the database build an different version from taxonomy file)? Exiting\n" if(! defined $family{$accn});
+				$assignments{$centroid}{"assign"} = $family{$accn};
+				$assignments{$centroid}{"stamp"} .= "\tUnclassified\tUnclassified";
+				$assignments{$centroid}{"qiime"} .= "; g__; s__";
 			}
 		} else {
-			$assignments{$q}{"stamp"} .= "\tUnclassified\tUnclassified\tUnclassified";
-			$assignments{$q}{"qiime"} .= "; f__; g__; s__";
+			$assignments{$centroid}{"stamp"} .= "\tUnclassified\tUnclassified\tUnclassified";
+			$assignments{$centroid}{"qiime"} .= "; f__; g__; s__";
 		}
 		
-		# print "Looking at $q which matches $s at $p -> assigned to ".$assignments{$q}{"qiime"}."\n";
+		# print "Looking at $centroid which matches $s at $p -> assigned to ".$assignments{$centroid}{"qiime"}."\n";
 	}
 	
 	# These variables will store the processed results
@@ -664,8 +669,9 @@ sub taxAssignBatch{
 	
 	# This variable stores the count for creating a biom file
 	# bins are the samples
+	
 	my %biom;
-	my %biomBins;
+	my %biomSamples;
 	
 	my %otu2Keep;
 	my $otu2Keep = `grep '^>' $outDir/$out.nochim.fa`;
@@ -673,6 +679,7 @@ sub taxAssignBatch{
 	foreach(@otu2Keep){
 		chomp $_;
 		$_ =~ s/^>//;
+		$_ =~ s/;size.*//;
 		$otu2Keep{$_} = 1;
 	}
 	
@@ -680,41 +687,55 @@ sub taxAssignBatch{
 	open FILE, "<$outDir/$out.up" or die "\nERROR (Line ".__LINE__."): Cannot open input file $outDir/$out.up: $!\n";
 	while(<FILE>){
 		chomp $_;
-		my ($type, @vals) = split(/\t/, $_);
-		next if($type ne "S");
+		my ($type, undef, undef, undef, undef, undef, undef, undef, $label1, $label2) = split(/\t/, $_);
+		# columns are: (1) record type, (2) cluster number, (3) centroid length / cluster size, 
+		#              (4) % identity, (5) match orientation, (6) *, (7) *, 
+		#              (8) alignment in CIGAR, (9) label of query (H) or centroid (S), 
+		#              (10) label of centroid (H) or * (S)
+		next if($type eq "C");
 		
-		pop(@vals);
-		my $otu = pop(@vals);
-		
-		next if(! defined $otu2Keep{$otu}); #Throw out chimeric OTUs
-		
-		my ($bin, undef) = split(/:/, $otu);
-		my $size = $otu;
+		# $otu is the centroid label, which is used to figure out
+		# what taxonomic assignment was made
+		my $otu = "";
+		my $sample = "";
+		my $size = 0; # this guy contains dereplication information
+		if($type eq "S"){
+			$otu = $label1;
+			($sample, undef) = split(/:/, $otu);
+			
+			$size = $otu;
+		} else {
+			$otu = $label2;
+			($sample, undef) = split(/:/, $label1);
+			
+			$size = $label1;
+		}
+		$otu =~ s/;size=.*$//;
 		$size =~ s/.*;size=//;
 		$size =~ s/;\s*$//;
 		
-		$otu =~ s/;size=.*$//;
+		next if(! defined $otu2Keep{$otu}); #Throw out chimeric OTUs
 		
 		if(defined $assignments{$otu}{"class"}){
 			next if($cluster4filter == 0 && $assignments{$otu}{"class"} eq "cluster_IV"); # Precautionary check, should never be true
 			
 			if(defined $assignments{$otu}{"class"}){
-				$classCounts{$bin}{$assignments{$otu}{"class"}} += $size;
+				$classCounts{$sample}{$assignments{$otu}{"class"}} += $size;
 				$classesSeen{$assignments{$otu}{"class"}} = 1;
 			}
 			
-			$assigned{$bin} += $size;
+			$assigned{$sample} += $size;
 			
 		} else {
 			$assignments{$otu}{"assign"} = "OTU$otuNum";
 			$otuNum++;
 		}
 		
-		$biom{$otu}{$bin} += $size;
-		$biomBins{$bin} = 1;
+		$biom{$otu}{$sample} += $size;
+		$biomSamples{$sample} = 1;
 		
-		$clusterCount{$bin}{$assignments{$otu}{"assign"}} += $size;
-		$total{$bin} += $size;
+		$clusterCount{$sample}{$assignments{$otu}{"assign"}} += $size;
+		$total{$sample} += $size;
 	}
 	close FILE;
 	
@@ -727,13 +748,13 @@ sub taxAssignBatch{
 		print ABND "\t$key";
 	}
 	print ABND "\tUnassignedOTUs\n";
-	foreach my $bin (keys %classCounts){
-		print ABND "$bin";
+	foreach my $sample (keys %classCounts){
+		print ABND "$sample";
 		my $percent = 0;
 		foreach my $tax (keys %classesSeen){
 			next unless(acceptable($tax));
-			$classCounts{$bin}{$tax} //= 0;
-			my $this = $classCounts{$bin}{$tax}*100/$total{$bin};
+			$classCounts{$sample}{$tax} //= 0;
+			my $this = $classCounts{$sample}{$tax}*100/$total{$sample};
 			print ABND "\t$this";
 			$percent += $this;
 		}
@@ -743,39 +764,39 @@ sub taxAssignBatch{
 	print STDERR "\n\tCreated $out.abundance.txt";
 		
 	# Set of krona files
-	foreach my $bin (keys %clusterCount){
-		open KRONA, ">$outDir/$bin.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outDir/$bin.krona.txt: $!\n";
-		foreach my $key (keys %{$clusterCount{$bin}}){
+	foreach my $sample (keys %clusterCount){
+		open KRONA, ">$outDir/$sample.krona.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outDir/$sample.krona.txt: $!\n";
+		foreach my $key (keys %{$clusterCount{$sample}}){
 			my $text = $key;
 			$text =~ s/\//&#47;/g;
 			next if($text =~ m/^OTU/);
-			print KRONA "$clusterCount{$bin}{$key}\t$text\n";
+			print KRONA "$clusterCount{$sample}{$key}\t$text\n";
 		}
-		print KRONA ($total{$bin}-$assigned{$bin})."\tUnassigned OTU\n";
+		print KRONA ($total{$sample}-$assigned{$sample})."\tUnassigned OTU\n";
 		close KRONA;
-		`ktImportText -n nifH $outDir/$bin.krona.txt -o $outDir/$bin.krona.html`;
+		`ktImportText -n nifH $outDir/$sample.krona.txt -o $outDir/$sample.krona.html`;
 	}
 	print STDERR "\n\tCreated Krona files (Total files = ".(scalar keys %clusterCount).")";
 	
 	
 	# This is where the BIOM file is generated for input for QIIME
 	
-	my @biomBins = keys %biomBins;
+	my @biomSamples = keys %biomSamples;
 	my @otus = keys %biom;
 	
 	open BIOM, ">$outDir/$out.otu_table.txt" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outDir/$out.otu_table.txt: $!\n";
 	print BIOM "# Constructed from biom file\n";
 	print BIOM "#OTU ID";
-	foreach (@biomBins){
+	foreach (@biomSamples){
 		print BIOM "\t$_";
 	}
 	print BIOM "\ttaxonomy\n";
 	for(my $i = 0; $i < @otus; $i++){
 		
 		print BIOM "denovo".($i+1);
-		foreach my $bin (@biomBins){
-			$biom{$otus[$i]}{$bin} //= 0;
-			print BIOM "\t$biom{$otus[$i]}{$bin}";
+		foreach my $sample (@biomSamples){
+			$biom{$otus[$i]}{$sample} //= 0;
+			print BIOM "\t$biom{$otus[$i]}{$sample}";
 		}
 		if(! defined $assignments{$otus[$i]}{"qiime"}){
 			print BIOM "\tk__; p__; c__; o__; f__; g__; s__\n";
@@ -800,7 +821,7 @@ sub taxAssignBatch{
 	
 	open SPF, ">$outDir/$out.spf" or die "\nERROR (Line ".__LINE__."): Cannot create output file $outDir/$out.spf: $!\n";
 	print SPF "Domain\tPhylum\tClass\tOrder\tFamily\tGenus\tSpecies";
-	foreach (@biomBins){
+	foreach (@biomSamples){
 		print SPF "\t$_";
 	}
 	print SPF "\n";
@@ -810,28 +831,28 @@ sub taxAssignBatch{
 	my %spfBinCounts;
 	for(my $i = 0; $i < @otus; $i++){
 		if(! defined $assignments{$otus[$i]}{"stamp"}){
-			foreach my $bin (@biomBins){
-				$biom{$otus[$i]}{$bin} //= 0;
-				$unclass{$bin} += $biom{$otus[$i]}{$bin};
+			foreach my $sample (@biomSamples){
+				$biom{$otus[$i]}{$sample} //= 0;
+				$unclass{$sample} += $biom{$otus[$i]}{$sample};
 			}
 		} else {
 			$spfTag{$assignments{$otus[$i]}{"stamp"}} = 1;
-			foreach my $bin (@biomBins){
-				$biom{$otus[$i]}{$bin} //= 0;
-				$spfBinCounts{$assignments{$otus[$i]}{"stamp"}}{$bin} += $biom{$otus[$i]}{$bin};
+			foreach my $sample (@biomSamples){
+				$biom{$otus[$i]}{$sample} //= 0;
+				$spfBinCounts{$assignments{$otus[$i]}{"stamp"}}{$sample} += $biom{$otus[$i]}{$sample};
 			}
 		}
 	}
 	foreach my $tag (keys %spfTag){
 		print SPF $tag;
-		foreach my $bin (@biomBins){
-			print SPF "\t$spfBinCounts{$tag}{$bin}";
+		foreach my $sample (@biomSamples){
+			print SPF "\t$spfBinCounts{$tag}{$sample}";
 		}
 		print SPF "\n";
 	}
 	print SPF "Unclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified\tUnclassified"; 
-	foreach my $bin (@biomBins){
-		print SPF "\t$unclass{$bin}";
+	foreach my $sample (@biomSamples){
+		print SPF "\t$unclass{$sample}";
 	}
 	print SPF "\n";
 	close SPF;
